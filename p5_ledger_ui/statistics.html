@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Account Book - 统计</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=Space+Grotesk:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --primary:#85cfff;
+  --secondary:#feda57;
+  --bg:#0e0e0e;
+  --surface:#1a1a1a;
+  --surface-hi:#262626;
+  --surface-lo:#131313;
+  --text:#ffffff;
+  --text-dim:#adaaaa;
+  --income:#4ade80;
+  --expense:#ff716c;
+  --snap:150ms steps(2);
+  --snap-slow:200ms steps(3);
+}
+body{
+  font-family:'Noto Sans SC','Space Grotesk',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+  padding-bottom:100px;
+}
+body::before{
+  content:'';position:fixed;top:0;left:0;width:100%;height:100%;
+  background:
+    repeating-linear-gradient(
+      -45deg,transparent,transparent 80px,
+      rgba(133,207,255,0.03) 80px,rgba(133,207,255,0.03) 81px
+    );
+  pointer-events:none;z-index:0;
+}
+
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:#000;
+  border-bottom:4px solid var(--primary);
+  padding:12px 20px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.topbar::after{
+  content:'';position:absolute;bottom:-8px;left:0;width:100%;height:4px;
+  background:var(--secondary);
+}
+.logo{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.4rem;color:var(--primary);text-transform:uppercase;letter-spacing:.02em;transform:skewX(-4deg)}
+
+/* Page header */
+.page-header{
+  padding:24px 20px 8px;position:relative;z-index:1;
+}
+.page-title{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:2rem;font-weight:800;
+  transform:skewX(-4deg);
+  letter-spacing:-0.03em;
+}
+.page-title .accent{color:var(--secondary)}
+.page-subtitle{
+  font-size:.75rem;font-weight:600;
+  color:var(--primary);
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  margin-top:4px;
+}
+
+/* Month nav */
+.month-bar{
+  display:flex;align-items:center;justify-content:center;
+  gap:16px;padding:16px;position:relative;z-index:1;
+}
+.month-btn{
+  width:36px;height:36px;background:var(--surface);
+  border:3px solid var(--primary);color:var(--primary);
+  font-size:1rem;font-weight:900;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .1s;
+}
+.month-btn:hover{background:var(--primary);color:#000}
+.month-btn:active{transform:scale(.9)}
+.month-label{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:1.2rem;font-weight:800;
+  color:var(--text);
+  transform:skewX(-4deg);
+}
+
+/* Tab bar - P5 angular */
+.tab-bar{
+  display:flex;margin:0 16px 24px;
+  position:relative;z-index:1;
+}
+.tab-btn{
+  flex:1;padding:12px 0;
+  font-weight:800;font-size:.8rem;
+  text-align:center;cursor:pointer;
+  background:var(--surface);
+  color:var(--text-dim);
+  border:2px solid var(--surface-hi);
+  transition:all var(--snap);
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
+.tab-btn:nth-child(1){clip-path:polygon(0 0,90% 0,100% 100%,0 100%)}
+.tab-btn:nth-child(2){clip-path:polygon(10% 0,90% 0,100% 100%,0 100%);border-left:none;border-right:none}
+.tab-btn:nth-child(3){clip-path:polygon(0 0,100% 0,100% 100%,10% 100%)}
+.tab-btn.active{
+  background:var(--primary);
+  color:#000;
+  border-color:var(--primary);
+}
+
+/* Chart section */
+.chart-section{
+  margin:0 16px 24px;position:relative;z-index:1;
+}
+.chart-box{
+  background:var(--surface);
+  border:4px solid var(--primary);
+  padding:20px;
+  position:relative;
+  clip-path:polygon(0 0,100% 0,100% 94%,97% 100%,0 100%);
+}
+.chart-box::before{
+  content:'';position:absolute;top:0;right:0;width:50px;height:50px;
+  background:var(--secondary);
+  clip-path:polygon(0 0,100% 0,100% 100%);
+  opacity:.3;
+}
+.chart-title{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:1.1rem;font-weight:800;
+  text-transform:uppercase;
+  margin-bottom:20px;
+}
+
+/* Bar chart - P5 angular style */
+.bar-chart{
+  display:flex;align-items:flex-end;gap:6px;
+  height:200px;
+  position:relative;
+  padding-bottom:30px;
+}
+.bar-chart::before{
+  content:'';position:absolute;bottom:30px;left:0;right:0;
+  border-bottom:2px solid var(--surface-hi);
+}
+.bar-group{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  position:relative;
+}
+.bar-pair{
+  display:flex;gap:3px;align-items:flex-end;
+  width:100%;height:170px;
+}
+.bar{
+  flex:1;position:relative;
+  transition:height .3s;
+  min-height:4px;
+}
+.bar.income-bar{
+  background:repeating-linear-gradient(
+    -45deg,var(--income),var(--income) 3px,rgba(74,222,128,0.6) 3px,rgba(74,222,128,0.6) 6px
+  );
+  clip-path:polygon(0 10%,100% 0,100% 90%,0 100%);
+}
+.bar.expense-bar{
+  background:repeating-linear-gradient(
+    -45deg,var(--expense),var(--expense) 3px,rgba(255,113,108,0.6) 3px,rgba(255,113,108,0.6) 6px
+  );
+  clip-path:polygon(0 0,100% 10%,100% 100%,0 90%);
+}
+.bar:hover{filter:brightness(1.3)}
+.bar-label{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.6rem;font-weight:700;
+  color:var(--text-dim);
+  margin-top:6px;
+  text-align:center;
+}
+
+/* Pie chart area */
+.pie-section{
+  margin:0 16px 24px;position:relative;z-index:1;
+}
+.pie-box{
+  background:var(--secondary);
+  border:4px solid #000;
+  padding:24px;
+  box-shadow:6px 6px 0 0 var(--primary);
+  clip-path:polygon(0 0,100% 0,100% 94%,97% 100%,0 100%);
+}
+.pie-title{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:1.2rem;font-weight:800;
+  color:#000;
+  text-transform:uppercase;
+  margin-bottom:20px;
+}
+.pie-container{
+  display:flex;align-items:center;gap:20px;
+}
+.pie-visual{
+  width:160px;height:160px;
+  position:relative;
+  flex-shrink:0;
+}
+.pie-slice{
+  position:absolute;inset:0;
+  border-radius:50%;
+}
+.pie-center{
+  position:absolute;
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  width:60px;height:60px;
+  background:#000;
+  clip-path:polygon(10% 0,100% 0,90% 100%,0 100%);
+  display:flex;align-items:center;justify-content:center;
+  z-index:2;
+}
+.pie-center-text{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.6rem;font-weight:800;
+  color:var(--secondary);
+  text-align:center;
+  line-height:1.2;
+}
+.pie-legend{flex:1}
+.legend-item{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 0;
+  border-bottom:1px solid rgba(0,0,0,0.15);
+}
+.legend-dot{
+  width:14px;height:14px;flex-shrink:0;
+  clip-path:polygon(15% 0,100% 0,85% 100%,0 100%);
+}
+.legend-name{
+  flex:1;font-size:.8rem;font-weight:700;color:#000;
+}
+.legend-pct{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:.8rem;font-weight:800;color:#000;
+}
+
+/* Ranking section */
+.ranking-section{
+  margin:0 16px 24px;position:relative;z-index:1;
+}
+.ranking-title{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:1.3rem;font-weight:800;
+  text-transform:uppercase;
+  margin-bottom:16px;
+}
+.ranking-title .accent{color:var(--secondary)}
+.rank-item{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 16px;
+  background:var(--surface);
+  margin-bottom:6px;
+  position:relative;
+  cursor:pointer;
+  transition:all var(--snap);
+}
+.rank-item:active{transform:scale(.98) skew(-1deg,0)}
+.rank-item::after{
+  content:'';position:absolute;right:0;top:0;width:16px;height:100%;
+  background:repeating-linear-gradient(
+    -45deg,transparent,transparent 3px,
+    rgba(133,207,255,0.05) 3px,rgba(133,207,255,0.05) 6px
+  );
+}
+.rank-badge{
+  width:32px;height:32px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:900;font-size:.9rem;
+  flex-shrink:0;
+}
+.rank-badge.gold{
+  background:var(--secondary);
+  color:#000;
+  clip-path:polygon(10% 0,100% 0,90% 100%,0 100%);
+}
+.rank-badge.silver{
+  background:#c0c0c0;
+  color:#000;
+  clip-path:polygon(10% 0,100% 0,90% 100%,0 100%);
+}
+.rank-badge.bronze{
+  background:#cd7f32;
+  color:#000;
+  clip-path:polygon(10% 0,100% 0,90% 100%,0 100%);
+}
+.rank-badge.normal{
+  background:var(--surface-hi);
+  color:var(--text-dim);
+  clip-path:polygon(10% 0,100% 0,90% 100%,0 100%);
+}
+.rank-info{flex:1}
+.rank-category{font-weight:700;font-size:.9rem}
+.rank-bar-bg{
+  height:6px;background:var(--surface-hi);
+  margin-top:6px;
+  clip-path:polygon(0 0,100% 0,98% 100%,0 100%);
+}
+.rank-bar-fill{
+  height:100%;
+  transition:width .3s;
+}
+.rank-amount{
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:800;font-size:.95rem;
+  flex-shrink:0;
+}
+
+/* Insight card */
+.insight-section{
+  margin:0 16px 24px;position:relative;z-index:1;
+}
+.insight-card{
+  background:var(--surface);
+  border:4px solid var(--secondary);
+  padding:20px;
+  position:relative;
+  clip-path:polygon(0 0,100% 0,100% 90%,95% 100%,0 100%);
+}
+.insight-card::before{
+  content:'';position:absolute;top:0;left:0;width:6px;height:100%;
+  background:repeating-linear-gradient(
+    -45deg,var(--secondary),var(--secondary) 3px,transparent 3px,transparent 9px
+  );
+}
+.insight-label{
+  font-size:.7rem;font-weight:700;
+  color:var(--secondary);
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  margin-bottom:8px;
+}
+.insight-value{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:2.5rem;font-weight:800;
+  color:var(--income);
+  transform:skewX(-3deg);
+}
+.insight-desc{
+  font-size:.75rem;color:var(--text-dim);
+  margin-top:8px;
+  line-height:1.5;
+}
+
+/* Bottom nav */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:50;
+  background:#000;
+  border-top:4px solid var(--primary);
+  display:flex;justify-content:space-around;align-items:center;
+  height:72px;padding:0 8px;
+}
+.bottom-nav::before{
+  content:'';position:absolute;top:-6px;left:0;width:100%;height:4px;
+  background:var(--secondary);
+}
+.nav-item{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:8px 12px;cursor:pointer;
+  transition:all .1s;color:var(--text-dim);
+  position:relative;
+}
+.nav-item:hover{color:var(--primary)}
+.nav-item:active{transform:scale(.9)}
+.nav-item.active{color:var(--secondary)}
+.nav-icon{width:24px;height:24px;display:flex;align-items:center;justify-content:center}
+.nav-icon svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.nav-item.active .nav-icon svg{stroke-width:3}
+.nav-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+
+.corner-deco{
+  position:fixed;top:80px;left:-30px;z-index:0;
+  width:140px;height:140px;
+  background:var(--primary);
+  opacity:.04;
+  transform:rotate(-15deg);
+  clip-path:polygon(0 0,100% 0,80% 100%,0 70%);
+  pointer-events:none;
+  animation:corner-drift 8s steps(4) infinite;
+}
+
+@keyframes p5-shake{
+  0%,100%{transform:skewX(-4deg) rotate(0deg)}
+  25%{transform:skewX(-4deg) rotate(.3deg)}
+  50%{transform:skewX(-4deg) rotate(-.2deg)}
+  75%{transform:skewX(-4deg) rotate(.15deg)}
+}
+@keyframes p5-wobble{
+  0%,100%{transform:rotate(0deg)}
+  20%{transform:rotate(.5deg)}
+  40%{transform:rotate(-.4deg)}
+  60%{transform:rotate(.3deg)}
+  80%{transform:rotate(-.2deg)}
+}
+@keyframes p5-breathe{
+  0%,100%{opacity:1}
+  50%{opacity:.85}
+}
+@keyframes corner-drift{
+  0%,100%{transform:rotate(-15deg) translate(0,0)}
+  25%{transform:rotate(-13deg) translate(3px,-2px)}
+  50%{transform:rotate(-17deg) translate(-2px,3px)}
+  75%{transform:rotate(-14deg) translate(2px,1px)}
+}
+@keyframes nav-active-glow{
+  0%,100%{text-shadow:0 0 4px currentColor}
+  50%{text-shadow:0 0 10px currentColor,0 0 20px currentColor}
+}
+@keyframes bar-grow{
+  0%,100%{filter:brightness(1)}
+  50%{filter:brightness(1.15)}
+}
+@keyframes pie-rotate{
+  0%,100%{transform:rotate(0deg)}
+  50%{transform:rotate(2deg)}
+}
+@keyframes badge-pulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.08)}
+}
+@keyframes insight-glow{
+  0%,100%{border-color:var(--secondary)}
+  50%{border-color:var(--primary)}
+}
+
+.logo{animation:p5-shake 3s steps(3) infinite}
+.page-title{animation:p5-shake 4s steps(4) infinite}
+.chart-box{animation:p5-wobble 6s steps(5) infinite}
+.bar{animation:bar-grow 3s steps(3) infinite}
+.bar:nth-child(2){animation-delay:.3s}
+.pie-box{animation:pie-rotate 5s steps(4) infinite}
+.rank-badge.gold{animation:badge-pulse 2s steps(3) infinite}
+.rank-badge.silver{animation:badge-pulse 2.5s steps(3) infinite .2s}
+.rank-badge.bronze{animation:badge-pulse 3s steps(3) infinite .4s}
+.rank-item:nth-child(odd){animation:p5-wobble 7s steps(6) infinite}
+.rank-item:nth-child(even){animation:p5-wobble 8s steps(5) infinite .5s}
+.insight-card{animation:insight-glow 3s steps(4) infinite}
+.insight-value{animation:p5-shake 3.5s steps(3) infinite}
+.nav-item.active .nav-icon{animation:nav-active-glow 2s steps(3) infinite}
+.corner-deco{animation:corner-drift 8s steps(4) infinite}
+</style>
+</head>
+<body>
+
+<div class="corner-deco"></div>
+
+<header class="topbar">
+  <div style="display:flex;align-items:center;gap:12px">
+    <div style="width:32px;height:32px;background:var(--secondary);clip-path:polygon(15% 0,100% 0,85% 100%,0 100%);display:flex;align-items:center;justify-content:center;font-weight:900;color:#000;font-size:.9rem">A</div>
+    <span class="logo">Account Book</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:6px">
+    <div style="width:8px;height:8px;background:var(--income);clip-path:polygon(50% 0,100% 100%,0 100%)"></div>
+    <div style="width:8px;height:8px;background:var(--secondary);clip-path:polygon(50% 0,100% 100%,0 100%)"></div>
+    <div style="width:8px;height:8px;background:var(--expense);clip-path:polygon(50% 0,100% 100%,0 100%)"></div>
+  </div>
+</header>
+
+<div class="page-header">
+  <h1 class="page-title">资产<span class="accent">情报_</span></h1>
+  <div class="page-subtitle">// 财务态势感知 // 数据完整度: 高</div>
+</div>
+
+<div class="month-bar">
+  <button class="month-btn" style="clip-path:polygon(20% 0,100% 0,80% 100%,0 100%)">&#9664;</button>
+  <span class="month-label">2026年4月</span>
+  <button class="month-btn" style="clip-path:polygon(0 0,80% 0,100% 100%,20% 100%)">&#9654;</button>
+</div>
+
+<!-- Tabs -->
+<div class="tab-bar">
+  <div class="tab-btn active">支出占比</div>
+  <div class="tab-btn">月度对比</div>
+  <div class="tab-btn">排行榜</div>
+</div>
+
+<!-- Bar Chart -->
+<div class="chart-section">
+  <div class="chart-box">
+    <div class="chart-title">// 近6月收支对比</div>
+    <div class="bar-chart">
+      <div class="bar-group">
+        <div class="bar-pair">
+          <div class="bar income-bar" style="height:60%"></div>
+          <div class="bar expense-bar" style="height:45%"></div>
+        </div>
+        <div class="bar-label">11月</div>
+      </div>
+      <div class="bar-group">
+        <div class="bar-pair">
+          <div class="bar income-bar" style="height:75%"></div>
+          <div class="bar expense-bar" style="height:55%"></div>
+        </div>
+        <div class="bar-label">12月</div>
+      </div>
+      <div class="bar-group">
+        <div class="bar-pair">
+          <div class="bar income-bar" style="height:50%"></div>
+          <div class="bar expense-bar" style="height:70%"></div>
+        </div>
+        <div class="bar-label">1月</div>
+      </div>
+      <div class="bar-group">
+        <div class="bar-pair">
+          <div class="bar income-bar" style="height:85%"></div>
+          <div class="bar expense-bar" style="height:40%"></div>
+        </div>
+        <div class="bar-label">2月</div>
+      </div>
+      <div class="bar-group">
+        <div class="bar-pair">
+          <div class="bar income-bar" style="height:65%"></div>
+          <div class="bar expense-bar" style="height:50%"></div>
+        </div>
+        <div class="bar-label">3月</div>
+      </div>
+      <div class="bar-group">
+        <div class="bar-pair">
+          <div class="bar income-bar" style="height:90%"></div>
+          <div class="bar expense-bar" style="height:35%"></div>
+        </div>
+        <div class="bar-label">4月</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:16px;justify-content:center;margin-top:8px">
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="width:12px;height:12px;background:var(--income);clip-path:polygon(0 10%,100% 0,100% 90%,0 100%)"></div>
+        <span style="font-size:.7rem;font-weight:600;color:var(--text-dim)">收入</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="width:12px;height:12px;background:var(--expense);clip-path:polygon(0 0,100% 10%,100% 100%,0 90%)"></div>
+        <span style="font-size:.7rem;font-weight:600;color:var(--text-dim)">支出</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Pie Chart -->
+<div class="pie-section">
+  <div class="pie-box">
+    <div class="pie-title">// 支出分类分布</div>
+    <div class="pie-container">
+      <div class="pie-visual">
+        <div class="pie-slice" style="background:conic-gradient(#ff716c 0deg 144deg,#feda57 144deg 234deg,#85cfff 234deg 306deg,#4ade80 306deg 342deg,#adaaaa 342deg 360deg)"></div>
+        <div class="pie-center">
+          <div class="pie-center-text">总<br/>&#165;5.6k</div>
+        </div>
+      </div>
+      <div class="pie-legend">
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#ff716c"></div>
+          <span class="legend-name">住房</span>
+          <span class="legend-pct">40%</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#feda57"></div>
+          <span class="legend-name">餐饮</span>
+          <span class="legend-pct">25%</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#85cfff"></div>
+          <span class="legend-name">交通</span>
+          <span class="legend-pct">20%</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#4ade80"></div>
+          <span class="legend-name">购物</span>
+          <span class="legend-pct">10%</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#adaaaa"></div>
+          <span class="legend-name">其他</span>
+          <span class="legend-pct">5%</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Ranking -->
+<div class="ranking-section">
+  <div class="ranking-title">支出<span class="accent">排行榜</span></div>
+
+  <div class="rank-item">
+    <div class="rank-badge gold">1</div>
+    <div class="rank-info">
+      <div class="rank-category">住房</div>
+      <div class="rank-bar-bg">
+        <div class="rank-bar-fill" style="width:100%;background:var(--expense)"></div>
+      </div>
+    </div>
+    <div class="rank-amount" style="color:var(--expense)">&#165;2,500</div>
+  </div>
+
+  <div class="rank-item">
+    <div class="rank-badge silver">2</div>
+    <div class="rank-info">
+      <div class="rank-category">餐饮</div>
+      <div class="rank-bar-bg">
+        <div class="rank-bar-fill" style="width:62%;background:var(--secondary)"></div>
+      </div>
+    </div>
+    <div class="rank-amount" style="color:var(--secondary)">&#165;1,552</div>
+  </div>
+
+  <div class="rank-item">
+    <div class="rank-badge bronze">3</div>
+    <div class="rank-info">
+      <div class="rank-category">交通</div>
+      <div class="rank-bar-bg">
+        <div class="rank-bar-fill" style="width:28%;background:var(--primary)"></div>
+      </div>
+    </div>
+    <div class="rank-amount" style="color:var(--primary)">&#165;700</div>
+  </div>
+
+  <div class="rank-item">
+    <div class="rank-badge normal">4</div>
+    <div class="rank-info">
+      <div class="rank-category">购物</div>
+      <div class="rank-bar-bg">
+        <div class="rank-bar-fill" style="width:14%;background:var(--income)"></div>
+      </div>
+    </div>
+    <div class="rank-amount" style="color:var(--income)">&#165;350</div>
+  </div>
+
+  <div class="rank-item">
+    <div class="rank-badge normal">5</div>
+    <div class="rank-info">
+      <div class="rank-category">娱乐</div>
+      <div class="rank-bar-bg">
+        <div class="rank-bar-fill" style="width:8%;background:var(--text-dim)"></div>
+      </div>
+    </div>
+    <div class="rank-amount" style="color:var(--text-dim)">&#165;200</div>
+  </div>
+</div>
+
+<!-- Insight -->
+<div class="insight-section">
+  <div class="insight-card">
+    <div class="insight-label">// 战术洞察</div>
+    <div class="insight-value">+14.2%</div>
+    <div class="insight-desc">相比上月，本月支出减少14.2%。住房支出占比最高，建议优化居住成本。餐饮消费趋势稳定，交通支出可进一步压缩。</div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <div class="nav-item">
+    <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 12L12 3l9 9"/><path d="M5 10v9a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-9"/></svg></span>
+    <span class="nav-label">总览</span>
+  </div>
+  <div class="nav-item">
+    <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h10M4 18h7"/></svg></span>
+    <span class="nav-label">明细</span>
+  </div>
+  <div class="nav-item active">
+    <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M6 20V10M12 20V4M18 20v-6"/></svg></span>
+    <span class="nav-label">统计</span>
+  </div>
+  <div class="nav-item">
+    <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span>
+    <span class="nav-label">设置</span>
+  </div>
+</nav>
+<script>
+const AC=new(window.AudioContext||window.webkitAudioContext)();
+function snd(type){
+  if(AC.state==='suspended')AC.resume();
+  const t=AC.currentTime;
+  const g=AC.createGain();
+  g.connect(AC.destination);
+  if(type==='nav'){
+    const o1=AC.createOscillator();o1.type='square';o1.frequency.setValueAtTime(1800,t);
+    const o2=AC.createOscillator();o2.type='sine';o2.frequency.setValueAtTime(900,t+.015);
+    const g2=AC.createGain();g2.connect(AC.destination);g2.gain.setValueAtTime(.06,t+.015);g2.gain.exponentialRampToValueAtTime(.001,t+.07);
+    o2.connect(g2);
+    g.gain.setValueAtTime(.12,t);g.gain.exponentialRampToValueAtTime(.001,t+.015);
+    o1.connect(g);o1.start(t);o1.stop(t+.015);o2.start(t+.015);o2.stop(t+.07);
+  }else if(type==='tab'){
+    const o=AC.createOscillator();o.type='square';o.frequency.setValueAtTime(800,t);o.frequency.exponentialRampToValueAtTime(1200,t+.03);
+    g.gain.setValueAtTime(.1,t);g.gain.exponentialRampToValueAtTime(.001,t+.04);
+    o.connect(g);o.start(t);o.stop(t+.04);
+  }else if(type==='bar'){
+    const o=AC.createOscillator();o.type='triangle';o.frequency.setValueAtTime(400,t);o.frequency.exponentialRampToValueAtTime(800,t+.04);
+    g.gain.setValueAtTime(.08,t);g.gain.exponentialRampToValueAtTime(.001,t+.05);
+    o.connect(g);o.start(t);o.stop(t+.05);
+  }else if(type==='rank'){
+    const o=AC.createOscillator();o.type='square';o.frequency.setValueAtTime(600,t);o.frequency.exponentialRampToValueAtTime(400,t+.04);
+    g.gain.setValueAtTime(.08,t);g.gain.exponentialRampToValueAtTime(.001,t+.04);
+    o.connect(g);o.start(t);o.stop(t+.04);
+  }else if(type==='month'){
+    const o=AC.createOscillator();o.type='sawtooth';o.frequency.setValueAtTime(300,t);o.frequency.exponentialRampToValueAtTime(900,t+.06);o.frequency.exponentialRampToValueAtTime(500,t+.12);
+    g.gain.setValueAtTime(.08,t);g.gain.exponentialRampToValueAtTime(.001,t+.12);
+    o.connect(g);o.start(t);o.stop(t+.12);
+  }else if(type==='insight'){
+    const o1=AC.createOscillator();o1.type='sine';o1.frequency.setValueAtTime(800,t);
+    const o2=AC.createOscillator();o2.type='sine';o2.frequency.setValueAtTime(1200,t+.06);
+    const o3=AC.createOscillator();o3.type='sine';o3.frequency.setValueAtTime(1600,t+.12);
+    g.gain.setValueAtTime(.1,t);g.gain.exponentialRampToValueAtTime(.001,t+.2);
+    o1.connect(g);o2.connect(g);o3.connect(g);o1.start(t);o1.stop(t+.06);o2.start(t+.06);o2.stop(t+.12);o3.start(t+.12);o3.stop(t+.2);
+  }else if(type==='pie'){
+    const o=AC.createOscillator();o.type='sine';o.frequency.setValueAtTime(600,t);o.frequency.exponentialRampToValueAtTime(1400,t+.06);o.frequency.exponentialRampToValueAtTime(800,t+.1);
+    g.gain.setValueAtTime(.08,t);g.gain.exponentialRampToValueAtTime(.001,t+.1);
+    o.connect(g);o.start(t);o.stop(t+.1);
+  }
+}
+document.querySelectorAll('.nav-item').forEach(el=>el.addEventListener('pointerdown',()=>snd('nav')));
+document.querySelectorAll('.tab-btn').forEach(el=>el.addEventListener('pointerdown',()=>snd('tab')));
+document.querySelectorAll('.bar').forEach(el=>el.addEventListener('pointerdown',()=>snd('bar')));
+document.querySelectorAll('.rank-item').forEach(el=>el.addEventListener('pointerdown',()=>snd('rank')));
+document.querySelectorAll('.month-btn').forEach(el=>el.addEventListener('pointerdown',()=>snd('month')));
+document.querySelectorAll('.insight-card').forEach(el=>el.addEventListener('pointerdown',()=>snd('insight')));
+document.querySelectorAll('.pie-box').forEach(el=>el.addEventListener('pointerdown',()=>snd('pie')));
+</script>
+</body>

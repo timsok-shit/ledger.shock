@@ -1,0 +1,2103 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<!-- QCE_METADATA: {"messageCount":0,"chatName":"客代课","chatType":"private","exportTime":"2026-04-15T05:47:13.807Z"} -->
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>聊天记录 - 客代课</title>
+<style>
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        /* CSS Variables for Theme */
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f7;
+            --text-primary: #1d1d1f;
+            --text-secondary: #86868b;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --shadow: rgba(0, 0, 0, 0.05);
+            --bubble-other: #f2f2f7;
+            --bubble-self: #d1e9ff;
+            --bubble-self-text: #1d1d1f;
+            --at-mention-bg: rgba(29, 29, 31, 0.1);
+            --at-mention-text: #1d1d1f;
+            --reply-bg: rgba(29, 29, 31, 0.05);
+            --reply-border: rgba(29, 29, 31, 0.25);
+            --footer-gradient: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.02) 100%);
+            --chat-scale: 1;
+            --message-font-size: calc(17px * var(--chat-scale));
+            --message-sender-size: calc(14px * var(--chat-scale));
+            --message-time-size: calc(12px * var(--chat-scale));
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #000000;
+            --bg-secondary: #1c1c1e;
+            --text-primary: #f5f5f7;
+            --text-secondary: #98989f;
+            --border-color: rgba(255, 255, 255, 0.12);
+            --shadow: rgba(0, 0, 0, 0.3);
+            --bubble-other: #1c1c1e;
+            --bubble-self: #2d5a7b;
+            --bubble-self-text: #e3f2fd;
+            --at-mention-bg: rgba(245, 245, 247, 0.15);
+            --at-mention-text: #f5f5f7;
+            --reply-bg: rgba(255, 255, 255, 0.08);
+            --reply-border: rgba(255, 255, 255, 0.2);
+            --footer-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.03) 100%);
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Hiragino Sans GB", sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5; 
+            font-size: 17px;
+            -webkit-font-smoothing: antialiased;
+            transition: background 0.3s, color 0.3s;
+        }
+        
+        /* Toolbar - 底部胶囊 */
+        .toolbar {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(249, 249, 249, 0.78);
+            backdrop-filter: saturate(180%) blur(20px);
+            border-radius: 20px;
+            padding: 8px;
+            z-index: 1000;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08),
+                        0 8px 32px rgba(0, 0, 0, 0.06),
+                        inset 0 0 0 0.5px rgba(0, 0, 0, 0.04);
+        }
+        
+        [data-theme="dark"] .toolbar {
+            background: rgba(44, 44, 46, 0.78);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3),
+                        0 8px 32px rgba(0, 0, 0, 0.25),
+                        inset 0 0 0 0.5px rgba(255, 255, 255, 0.08);
+        }
+        
+        .toolbar-content {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+        
+        /* 时间范围选择胶囊 */
+        .time-range-container {
+            position: relative;
+        }
+        .time-range-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.04);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 500;
+        }
+        [data-theme="dark"] .time-range-btn {
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .time-range-btn:hover {
+            background: rgba(0, 0, 0, 0.08);
+        }
+        [data-theme="dark"] .time-range-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+        .time-range-btn svg {
+            width: 16px !important;
+            height: 16px !important;
+            stroke-width: 2 !important;
+        }
+        .time-range-dropdown {
+            position: absolute;
+            bottom: calc(100% + 12px);
+            right: 0;
+            min-width: 240px;
+            padding: 12px;
+            border-radius: 14px;
+            background: rgba(249, 249, 249, 0.88);
+            backdrop-filter: saturate(180%) blur(20px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12),
+                        0 8px 40px rgba(0, 0, 0, 0.08),
+                        inset 0 0 0 0.5px rgba(0, 0, 0, 0.04);
+            opacity: 0;
+            transform: translateY(8px);
+            pointer-events: none;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1001;
+        }
+        [data-theme="dark"] .time-range-dropdown {
+            background: rgba(44, 44, 46, 0.88);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4),
+                        0 8px 40px rgba(0, 0, 0, 0.3),
+                        inset 0 0 0 0.5px rgba(255, 255, 255, 0.08);
+        }
+        .time-range-dropdown.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+        .time-range-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .time-range-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .time-range-input-group label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .time-range-input-group input {
+            padding: 6px 10px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        [data-theme="dark"] .time-range-input-group input {
+            border-color: rgba(255, 255, 255, 0.12);
+            color-scheme: dark;
+        }
+        .time-range-input-group input:focus {
+            outline: none;
+            border-color: #1d1d1f;
+            box-shadow: 0 0 0 3px rgba(29, 29, 31, 0.1);
+        }
+        [data-theme="dark"] .time-range-input-group input:focus {
+            border-color: #f5f5f7;
+            box-shadow: 0 0 0 3px rgba(245, 245, 247, 0.1);
+        }
+        .time-range-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(0, 0, 0, 0.08);
+        }
+        [data-theme="dark"] .time-range-actions {
+            border-top-color: rgba(255, 255, 255, 0.12);
+        }
+        .time-range-actions button {
+            flex: 1;
+            padding: 6px 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .time-range-actions .apply-btn {
+            background: #1d1d1f;
+            color: #ffffff;
+        }
+        [data-theme="dark"] .time-range-actions .apply-btn {
+            background: #f5f5f7;
+            color: #000000;
+        }
+        .time-range-actions .apply-btn:hover {
+            opacity: 0.8;
+        }
+        .time-range-actions .clear-btn {
+            background: rgba(0, 0, 0, 0.06);
+            color: var(--text-primary);
+        }
+        [data-theme="dark"] .time-range-actions .clear-btn {
+            background: rgba(255, 255, 255, 0.12);
+        }
+        .time-range-actions .clear-btn:hover {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        [data-theme="dark"] .time-range-actions .clear-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        /* 分隔线 */
+        .toolbar-separator {
+            width: 1px;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.08);
+            margin: 0 4px;
+        }
+        
+        [data-theme="dark"] .toolbar-separator {
+            background: rgba(255, 255, 255, 0.12);
+        }
+        
+        .search-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .search-btn {
+            padding: 8px;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+        }
+        
+        .search-btn:hover {
+            background: rgba(0, 0, 0, 0.06);
+        }
+        
+        [data-theme="dark"] .search-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+        
+        .search-btn svg {
+            width: 18px !important;
+            height: 18px !important;
+            stroke-width: 2 !important;
+        }
+        
+        .search-input-wrapper {
+            position: relative;
+            width: 0;
+            overflow: hidden;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .search-input-wrapper.active {
+            width: 240px;
+            margin-left: 4px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 7px 32px 7px 12px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.06);
+            color: var(--text-primary);
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        
+        [data-theme="dark"] .search-input {
+            background: rgba(255, 255, 255, 0.12);
+        }
+        
+        .search-input:focus {
+            background: rgba(0, 0, 0, 0.1);
+        }
+        
+        [data-theme="dark"] .search-input:focus {
+            background: rgba(255, 255, 255, 0.18);
+        }
+        
+        .search-input::placeholder {
+            color: var(--text-secondary);
+        }
+        
+        .clear-search {
+            position: absolute;
+            right: 4px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 50%;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .clear-search:hover {
+            background: rgba(0, 0, 0, 0.1);
+            color: var(--text-primary);
+        }
+        
+        [data-theme="dark"] .clear-search:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .clear-search svg {
+            width: 14px !important;
+            height: 14px !important;
+            stroke-width: 2.5 !important;
+        }
+        
+        .toolbar-actions {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+        
+        .filter-container {
+            position: relative;
+        }
+        
+        .filter-btn {
+            padding: 8px;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+        }
+        
+        .filter-btn:hover {
+            background: rgba(0, 0, 0, 0.06);
+        }
+        
+        [data-theme="dark"] .filter-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+        
+        .filter-btn svg {
+            width: 18px !important;
+            height: 18px !important;
+            stroke-width: 2 !important;
+        }
+        
+        .filter-dropdown {
+            position: absolute;
+            bottom: calc(100% + 12px);
+            right: 0;
+            min-width: 200px;
+            max-width: 280px;
+            padding: 6px;
+            border-radius: 14px;
+            background: rgba(249, 249, 249, 0.88);
+            backdrop-filter: saturate(180%) blur(20px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12),
+                        0 8px 40px rgba(0, 0, 0, 0.08),
+                        inset 0 0 0 0.5px rgba(0, 0, 0, 0.04);
+            opacity: 0;
+            transform: translateY(8px);
+            pointer-events: none;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1001;
+        }
+        
+        [data-theme="dark"] .filter-dropdown {
+            background: rgba(44, 44, 46, 0.88);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4),
+                        0 8px 40px rgba(0, 0, 0, 0.3),
+                        inset 0 0 0 0.5px rgba(255, 255, 255, 0.08);
+        }
+        
+        .filter-dropdown.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+        
+        /* 筛选搜索框 */
+        .filter-search-wrapper {
+            padding: 4px 6px 8px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            margin-bottom: 6px;
+        }
+        
+        [data-theme="dark"] .filter-search-wrapper {
+            border-bottom-color: rgba(255, 255, 255, 0.12);
+        }
+        
+        .filter-search-input {
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 13px;
+            outline: none;
+            transition: all 0.2s;
+        }
+        
+        [data-theme="dark"] .filter-search-input {
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+        
+        .filter-search-input:focus {
+            border-color: #1d1d1f;
+            box-shadow: 0 0 0 2px rgba(29, 29, 31, 0.1);
+        }
+        
+        [data-theme="dark"] .filter-search-input:focus {
+            border-color: #f5f5f7;
+            box-shadow: 0 0 0 2px rgba(245, 245, 247, 0.1);
+        }
+        
+        .filter-search-input::placeholder {
+            color: var(--text-secondary);
+        }
+        
+        /* 筛选选项列表容器 */
+        .filter-options-list {
+            max-height: 320px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+        }
+        
+        .filter-options-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .filter-options-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .filter-options-list::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+        
+        [data-theme="dark"] .filter-options-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .filter-option {
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.15s;
+            font-size: 14px;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .filter-option:hover {
+            background: rgba(0, 0, 0, 0.06);
+        }
+        
+        [data-theme="dark"] .filter-option:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+        
+        .filter-option.active {
+            background: rgba(0, 0, 0, 0.08);
+            font-weight: 600;
+        }
+        
+        [data-theme="dark"] .filter-option.active {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .filter-option.hidden {
+            display: none;
+        }
+        
+        /* 无搜索结果提示 */
+        .filter-no-result {
+            padding: 12px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 13px;
+            display: none;
+        }
+        
+        .filter-no-result.visible {
+            display: block;
+        }
+        
+        .github-btn {
+            padding: 8px;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+        
+        .github-btn:hover {
+            background: rgba(0, 0, 0, 0.06);
+        }
+        
+        [data-theme="dark"] .github-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+        
+        .github-btn svg {
+            width: 18px !important;
+            height: 18px !important;
+            stroke-width: 2 !important;
+        }
+        
+        .theme-toggle {
+            padding: 8px;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+        }
+        
+        .theme-toggle:hover {
+            background: rgba(0, 0, 0, 0.06);
+        }
+        
+        [data-theme="dark"] .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+        
+        .theme-toggle svg {
+            width: 18px !important;
+            height: 18px !important;
+            stroke-width: 2 !important;
+        }
+        
+        /* 搜索高亮 */
+        mark.highlight {
+            background: #00ffc860 !important;
+            color: #000000 !important;
+            font-weight: 600;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        
+        [data-theme="dark"] mark.highlight {
+            background: #00ffc860 !important;
+            color: #000000 !important;
+        }
+        
+        /* Hero Section - 左对齐 */
+        .hero {
+            padding: 80px 64px 48px;
+            max-width: 980px;
+            margin: 0 auto;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .hero-title {
+            font-size: 64px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.03em;
+            line-height: 1.05;
+        }
+        
+        .hero-subtitle {
+            font-size: 17px;
+            color: var(--text-secondary);
+            font-weight: 400;
+            margin-bottom: 24px;
+        }
+        
+        .hero-meta {
+            display: flex;
+            gap: 32px;
+            flex-wrap: wrap;
+        }
+        .chat-layout {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 48px 120px;
+        }
+        .chat-main {
+            min-width: 0;
+        }
+        
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .meta-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .meta-value {
+            font-size: 17px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+        
+        /* Chat Content */
+        .chat-content {
+            padding: 64px 0 120px;
+            position: relative;
+            max-width: 980px;
+            margin: 0 auto;
+        }
+        
+        /* 虚拟滚动容器 */
+        .virtual-scroll-container {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .virtual-scroll-spacer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1px;
+            pointer-events: none;
+        }
+        
+        .virtual-scroll-content {
+            position: relative;
+            will-change: transform;
+        }
+        
+        /* 加载指示器 */
+        .scroll-loader {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .message-block {
+            margin-bottom: 32px;
+        }
+        .date-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 32px 0 16px;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.1em;
+            color: var(--text-secondary);
+        }
+        .date-divider::before,
+        .date-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+        .message {
+            margin-bottom: 0;
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            contain: layout style paint;
+            will-change: auto;
+        }
+        
+        .message.self {
+            flex-direction: row-reverse;
+        }
+        
+        .avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .message-wrapper {
+            max-width: 65%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .message-header {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            padding: 0 4px;
+        }
+        
+        .message.self .message-header {
+            flex-direction: row-reverse;
+        }
+        
+        .sender {
+            font-size: var(--message-sender-size);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .time {
+            font-size: var(--message-time-size);
+            color: var(--text-secondary);
+        }
+        
+        /* 消息气泡 - 带角 */
+        .message-bubble {
+            padding: 14px 18px;
+            border-radius: 20px;
+            position: relative;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        .message.other .message-bubble {
+            background: var(--bubble-other);
+            color: var(--text-primary);
+        }
+        
+        .message.self .message-bubble {
+            background: var(--bubble-self);
+            color: var(--bubble-self-text);
+        }
+        
+        /* 去掉消息角 - 直接用圆角矩形 */
+        
+        .content {
+            font-size: var(--message-font-size);
+            line-height: 1.47;
+        }
+        
+        .text-content {
+            display: inline;
+        }
+        
+        /* 图片内容 */
+        .image-content {
+            margin: 10px 0 4px;
+            border-radius: 16px;
+            overflow: hidden;
+            max-width: 320px;
+        }
+        
+        .image-content img {
+            width: 100%;
+            height: auto;
+            display: block;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        
+        .image-content img:hover {
+            opacity: 0.9;
+        }
+        
+        /* @提及 */
+        .at-mention {
+            background: var(--at-mention-bg);
+            color: var(--at-mention-text);
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-weight: 600;
+            display: inline;
+            transition: background 0.2s;
+        }
+        
+        .message.other .at-mention:hover {
+            opacity: 0.85;
+        }
+        
+        .message.self .at-mention {
+            background: rgba(0, 0, 0, 0.1);
+            color: var(--bubble-self-text);
+        }
+        
+        .message.self .at-mention:hover {
+            background: rgba(0, 0, 0, 0.15);
+        }
+        
+        /* 表情 */
+        .face-emoji {
+            display: inline;
+            font-size: 20px;
+            margin: 0 2px;
+            vertical-align: baseline;
+        }
+        
+        /* 引用消息 */
+        .reply-content {
+            background: var(--reply-bg);
+            border-left: 3px solid var(--reply-border);
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .reply-content:hover {
+            background: var(--reply-border);
+            opacity: 1;
+            transform: translateX(2px);
+        }
+        
+        .reply-content-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        
+        .reply-content strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .reply-content-time {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            margin-left: 8px;
+        }
+        
+        .reply-content-text {
+            color: var(--text-secondary);
+            margin-top: 4px;
+            word-break: break-word;
+        }
+        
+        .reply-content-image {
+            margin-top: 6px;
+            max-width: 80px;
+            max-height: 80px;
+            border-radius: 6px;
+            object-fit: cover;
+        }
+        
+        .message.self .reply-content {
+            background: rgba(0, 0, 0, 0.08);
+            border-left-color: rgba(0, 0, 0, 0.25);
+        }
+        
+        .message.self .reply-content:hover {
+            background: rgba(0, 0, 0, 0.12);
+        }
+        
+        .message.self .reply-content strong {
+            color: var(--bubble-self-text);
+        }
+        
+        /* 音频包装器 */
+        .audio-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .audio-download-link {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        
+        .audio-download-link:hover {
+            background: rgba(0, 0, 0, 0.1);
+            color: var(--text-primary);
+        }
+        
+        [data-theme="dark"] .audio-download-link {
+            background: rgba(255, 255, 255, 0.08);
+        }
+        
+        [data-theme="dark"] .audio-download-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        /* JSON 卡片 */
+        .json-card {
+            background: rgba(29, 29, 31, 0.06);
+            border: 1px solid rgba(29, 29, 31, 0.1);
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin: 8px 0;
+            transition: background 0.2s;
+        }
+        
+        .json-card:hover {
+            background: rgba(29, 29, 31, 0.08);
+        }
+        
+        .message.self .json-card {
+            background: rgba(0, 0, 0, 0.08);
+            border-color: rgba(0, 0, 0, 0.15);
+        }
+        
+        .message.self .json-card:hover {
+            background: rgba(0, 0, 0, 0.12);
+        }
+        
+        .json-title {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+        
+        .json-description {
+            font-size: 14px;
+            opacity: 0.75;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        
+        .json-url {
+            font-size: 12px;
+            opacity: 0.6;
+            text-decoration: none;
+        }
+        
+        /* 市场表情 */
+        .market-face {
+            display: inline-block;
+            width: 80px;
+            height: 80px;
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            vertical-align: middle;
+            margin: 4px 0;
+        }
+        
+        /* QQ表情 */
+        .face-emoji {
+            display: inline-block;
+            padding: 2px 8px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 6px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin: 0 2px;
+        }
+        
+        [data-theme="dark"] .face-emoji {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        /* 视频播放器 */
+        .message-video {
+            max-width: 100%;
+            width: 400px;
+            max-height: 300px;
+            border-radius: 12px;
+            margin: 8px 0;
+            display: block;
+            background: #000;
+        }
+        
+        /* 音频播放器 */
+        .message-audio {
+            width: 280px;
+            max-width: 100%;
+            margin: 8px 0;
+            display: block;
+        }
+        
+        /* 合并转发卡片 */
+        .forward-card {
+            background: var(--bubble-other);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin: 4px 0;
+            cursor: default;
+            transition: all 0.2s;
+        }
+        
+        [data-theme="dark"] .forward-card {
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .message.self .forward-card {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        
+        .forward-card-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .forward-card-icon {
+            width: 20px;
+            height: 20px;
+            opacity: 0.7;
+        }
+        
+        .forward-card-content {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            max-height: 120px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .forward-card-content::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 30px;
+            background: linear-gradient(to bottom, transparent, var(--bubble-other));
+        }
+        
+        .message.self .forward-card-content::after {
+            background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.05));
+        }
+        
+        .forward-card-footer {
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--text-tertiary);
+            text-align: right;
+        }
+        
+        /* 图片模态框 */
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            cursor: pointer;
+        }
+        
+        .image-modal img {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 90vw;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        
+        /* 滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #d1d1d6;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #c7c7cc;
+        }
+        
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .hero {
+                padding: 48px 24px 32px;
+            }
+            
+            .hero-title {
+                font-size: 40px;
+            }
+            
+            .hero-subtitle {
+                font-size: 15px;
+            }
+            
+            .hero-meta {
+                gap: 24px;
+            }
+            
+            .chat-content {
+                padding: 48px 24px 80px;
+            }
+            
+            .message {
+                margin-bottom: 28px;
+                gap: 12px;
+            }
+            
+            .avatar {
+                width: 38px;
+                height: 38px;
+            }
+            
+            .message-wrapper {
+                max-width: 75%;
+            }
+        }
+        
+        /* Footer */
+        .footer {
+            margin-top: 100px;
+            padding: 80px 0;
+            background: var(--footer-gradient);
+        }
+        
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .footer-brand h3 {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .footer-version {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            margin-bottom: 32px;
+        }
+        
+        .footer-info {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .footer-copyright {
+            font-size: 15px;
+            color: var(--text-primary);
+            font-weight: 400;
+        }
+        
+        .footer-copyright strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .footer-links {
+            font-size: 14px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .footer-links a,
+        .footer-links > span:not(.separator) {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        .footer-links a {
+            transition: opacity 0.2s;
+        }
+        
+        .footer-links a:hover {
+            opacity: 0.7;
+        }
+        
+        .footer-links .separator {
+            color: var(--text-secondary);
+            font-weight: 300;
+        }
+        
+        .footer-notice {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            font-weight: 400;
+        }
+        
+        /* 隐藏消息 (搜索/筛选) */
+        .message.hidden {
+            display: none !important;
+        }
+        @media (max-width: 1100px) {
+            .chat-layout {
+                padding: 0 24px 80px;
+            }
+            .chat-content {
+                padding: 32px 0 80px;
+            }
+            .message-wrapper {
+                max-width: 80%;
+            }
+        }
+
+</style>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+
+        function showImageModal(imgSrc) {
+            var modal = document.getElementById('imageModal');
+            var modalImg = document.getElementById('modalImage');
+            modal.style.display = 'block';
+            modalImg.src = imgSrc;
+        }
+        function hideImageModal() {
+            document.getElementById('imageModal').style.display = 'none';
+        }
+        // ========== 虚拟滚动管理器 ==========
+        class VirtualScroller {
+            constructor(container, items, options = {}) {
+                this.container = container;
+                this.allItems = items;
+                this.options = {
+                    itemHeight: options.itemHeight || 100,
+                    bufferSize: options.bufferSize || 10,
+                    ...options
+                };
+                
+                this.visibleItems = [];
+                this.startIndex = 0;
+                this.endIndex = 0;
+                this.scrollTop = 0;
+                this.containerHeight = 0;
+                this.totalHeight = 0;
+                this.isUpdating = false;
+                
+                this.init();
+            }
+            
+            init() {
+                // 创建虚拟滚动结构
+                this.spacer = document.createElement('div');
+                this.spacer.className = 'virtual-scroll-spacer';
+                
+                this.content = document.createElement('div');
+                this.content.className = 'virtual-scroll-content';
+                
+                this.container.appendChild(this.spacer);
+                this.container.appendChild(this.content);
+                
+                // 初始化总高度
+                this.totalHeight = this.allItems.length * this.options.itemHeight;
+                this.spacer.style.height = this.totalHeight + 'px';
+                
+                // 监听滚动
+                this.handleScroll = this.handleScroll.bind(this);
+                window.addEventListener('scroll', this.handleScroll, { passive: true });
+                window.addEventListener('resize', () => this.update());
+                
+                this.update();
+            }
+            
+            handleScroll() {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                // 降低阈值，提高响应性
+                if (Math.abs(scrollTop - this.scrollTop) > 30 && !this.isUpdating) {
+                    this.scrollTop = scrollTop;
+                    requestAnimationFrame(() => this.update());
+                }
+            }
+            
+            update() {
+                if (!this.allItems || this.allItems.length === 0 || this.isUpdating) return;
+                
+                this.isUpdating = true;
+                
+                this.containerHeight = window.innerHeight;
+                this.totalHeight = this.allItems.length * this.options.itemHeight;
+                
+                // 获取容器在文档中的位置
+                const containerRect = this.container.getBoundingClientRect();
+                const containerTop = this.scrollTop + containerRect.top;
+                
+                // 计算当前视口相对于容器的位置
+                const viewportTop = this.scrollTop;
+                const viewportBottom = viewportTop + this.containerHeight;
+                
+                // 计算可见区域在容器内的偏移
+                const visibleStart = Math.max(0, viewportTop - containerTop);
+                const visibleEnd = Math.max(0, viewportBottom - containerTop);
+                
+                // 计算应该渲染的项目范围（使用更大的缓冲区）
+                const startIndex = Math.max(0, Math.floor(visibleStart / this.options.itemHeight) - this.options.bufferSize);
+                const endIndex = Math.min(
+                    this.allItems.length,
+                    Math.ceil(visibleEnd / this.options.itemHeight) + this.options.bufferSize
+                );
+                
+                // 只在范围变化时才重新渲染
+                if (startIndex !== this.startIndex || endIndex !== this.endIndex) {
+                    this.startIndex = startIndex;
+                    this.endIndex = endIndex;
+                    this.render();
+                }
+                
+                this.isUpdating = false;
+            }
+            
+            render() {
+                const fragment = document.createDocumentFragment();
+                const offset = this.startIndex * this.options.itemHeight;
+                
+                // 批量渲染可见项
+                for (let i = this.startIndex; i < this.endIndex; i++) {
+                    if (this.allItems[i]) {
+                        fragment.appendChild(this.allItems[i].cloneNode(true));
+                    }
+                }
+                
+                // 一次性更新DOM
+                this.content.innerHTML = '';
+                this.content.appendChild(fragment);
+                this.content.style.transform = 'translateY(' + offset + 'px)';
+                
+                // 重新初始化图标
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons({
+                        attrs: { 'stroke-width': 2 }
+                    });
+                }
+            }
+            
+            updateItems(items) {
+                this.allItems = items;
+                this.totalHeight = items.length * this.options.itemHeight;
+                // 更新后重新计算滚动位置
+                this.scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                // 强制完整更新
+                this.startIndex = -1;
+                this.endIndex = -1;
+                this.update();
+            }
+            
+            destroy() {
+                window.removeEventListener('scroll', this.handleScroll);
+            }
+            scrollToIndex(index) {
+                if (typeof index !== 'number' || index < 0) return;
+                var targetOffset = index * (this.options.itemHeight || 100);
+                window.scrollTo({
+                    top: targetOffset,
+                    behavior: 'smooth'
+                });
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            var modal = document.getElementById('imageModal');
+            if (modal) modal.addEventListener('click', hideImageModal);
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') hideImageModal();
+            });
+            
+            // 回复消息跳转功能
+            window.scrollToMessage = function(msgId) {
+                var targetMsg = document.getElementById(msgId);
+                if (targetMsg) {
+                    // 平滑滚动到目标消息
+                    targetMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    
+                    // 高亮动画
+                    targetMsg.style.transition = 'background 0.3s';
+                    var originalBg = window.getComputedStyle(targetMsg).backgroundColor;
+                    targetMsg.style.background = 'rgba(0, 122, 255, 0.1)';
+                    
+                    setTimeout(function() {
+                        targetMsg.style.background = originalBg;
+                        setTimeout(function() {
+                            targetMsg.style.transition = '';
+                        }, 300);
+                    }, 1000);
+                } else {
+                    console.warn('[Reply Jump] 未找到目标消息:', msgId);
+                }
+            };
+            // ========== 时间范围选择 ==========
+            var timeRangeBtn = document.getElementById('timeRangeBtn');
+            var timeRangeDropdown = document.getElementById('timeRangeDropdown');
+            var timeRangeLabel = document.getElementById('timeRangeLabel');
+            var startDateInput = document.getElementById('startDate');
+            var endDateInput = document.getElementById('endDate');
+            var applyTimeRangeBtn = document.getElementById('applyTimeRange');
+            var clearTimeRangeBtn = document.getElementById('clearTimeRange');
+            var minDateKey = null;
+            var maxDateKey = null;
+            
+            function clampDateValue(value) {
+                if (!value) return '';
+                var normalized = value.slice(0, 10);
+                if (minDateKey && normalized < minDateKey) return minDateKey;
+                if (maxDateKey && normalized > maxDateKey) return maxDateKey;
+                return normalized;
+            }
+            
+            function applyDateRangeLimits() {
+                if (!startDateInput || !endDateInput) return;
+                startDateInput.min = minDateKey || '';
+                endDateInput.min = minDateKey || '';
+                startDateInput.max = maxDateKey || '';
+                endDateInput.max = maxDateKey || '';
+            }
+            
+            function enforceInputRange() {
+                if (startDateInput) {
+                    startDateInput.value = clampDateValue(startDateInput.value);
+                }
+                if (endDateInput) {
+                    endDateInput.value = clampDateValue(endDateInput.value);
+                }
+                if (startDateInput && endDateInput && startDateInput.value && endDateInput.value && startDateInput.value > endDateInput.value) {
+                    endDateInput.value = startDateInput.value;
+                }
+            }
+            
+            // 从localStorage恢复时间范围
+            var savedTimeRange = localStorage.getItem('timeRange');
+            if (savedTimeRange) {
+                try {
+                    var timeRange = JSON.parse(savedTimeRange);
+                    startDateInput.value = timeRange.start || '';
+                    endDateInput.value = timeRange.end || '';
+                    updateTimeRangeLabel();
+                } catch (e) {
+                    // 忽略解析错误
+                }
+            }
+            
+            function updateTimeRangeLabel() {
+                var start = startDateInput.value;
+                var end = endDateInput.value;
+                if (start || end) {
+                    timeRangeLabel.textContent = (start || '开始') + ' ~ ' + (end || '结束');
+                } else {
+                    timeRangeLabel.textContent = '全部时间';
+                }
+            }
+            
+            if (startDateInput) {
+                startDateInput.addEventListener('change', function() {
+                    enforceInputRange();
+                    updateTimeRangeLabel();
+                });
+            }
+            
+            if (endDateInput) {
+                endDateInput.addEventListener('change', function() {
+                    enforceInputRange();
+                    updateTimeRangeLabel();
+                });
+            }
+            
+            // 切换下拉菜单
+            timeRangeBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                timeRangeDropdown.classList.toggle('active');
+            });
+            
+            // 应用时间范围
+            applyTimeRangeBtn.addEventListener('click', function() {
+                enforceInputRange();
+                var start = startDateInput.value;
+                var end = endDateInput.value;
+                
+                // 保存到localStorage
+                localStorage.setItem('timeRange', JSON.stringify({
+                    start: start,
+                    end: end
+                }));
+                
+                updateTimeRangeLabel();
+                timeRangeDropdown.classList.remove('active');
+                
+                // 应用过滤逻辑
+                filterMessages();
+            });
+            
+            // 清除时间范围
+            clearTimeRangeBtn.addEventListener('click', function() {
+                startDateInput.value = '';
+                endDateInput.value = '';
+                localStorage.removeItem('timeRange');
+                updateTimeRangeLabel();
+                timeRangeDropdown.classList.remove('active');
+                
+                // 重新过滤消息（显示所有消息）
+                filterMessages();
+            });
+            
+            // 点击外部关闭下拉菜单
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.time-range-container')) {
+                    timeRangeDropdown.classList.remove('active');
+                }
+            });
+            
+            // 收集所有消息DOM
+            var messages = Array.from(document.querySelectorAll('.message'));
+            var messageBlocks = Array.from(document.querySelectorAll('.message-block'));
+            var dateKeySet = new Set();
+            messageBlocks.forEach(function(block) {
+                var dateValue = block.getAttribute('data-date');
+                if (dateValue) {
+                    dateKeySet.add(dateValue);
+                }
+            });
+            var dateKeys = Array.from(dateKeySet).sort();
+            minDateKey = dateKeys.length > 0 ? dateKeys[0] : null;
+            maxDateKey = dateKeys.length > 0 ? dateKeys[dateKeys.length - 1] : null;
+            applyDateRangeLimits();
+            enforceInputRange();
+            updateTimeRangeLabel();
+            var total = messages.length;
+            document.getElementById('info-total').textContent = total;
+            
+            if (messages.length > 0) {
+                var firstTime = messages[0].querySelector('.time').textContent;
+                var lastTime = messages[messages.length - 1].querySelector('.time').textContent;
+                document.getElementById('info-range').textContent = firstTime + ' ~ ' + lastTime;
+            }
+            // 初始化虚拟滚动（消息超过100条时启用）
+            var virtualScroller = null;
+            if (messageBlocks.length > 100) {
+                var chatContent = document.querySelector('.chat-content');
+                var originalBlocks = messageBlocks.map(function(block) { return block.cloneNode(true); });
+                chatContent.innerHTML = '';
+                virtualScroller = new VirtualScroller(chatContent, originalBlocks, {
+                    itemHeight: 120,
+                    bufferSize: 30
+                });
+                console.log('启用虚拟滚动，共', messageBlocks.length, '条消息');
+            }
+            // ========== 初始化 Lucide 图标 ==========
+            lucide.createIcons({
+                attrs: {
+                    'stroke-width': 2
+                }
+            });
+            
+            // ========== 主题切换 ==========
+            var themeToggle = document.getElementById('themeToggle');
+            var themeIconElement = document.getElementById('themeIcon');
+            var currentTheme = localStorage.getItem('theme') || 'light';
+            
+            function setTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                    themeIconElement.setAttribute('data-lucide', 'moon');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.removeAttribute('data-theme');
+                    themeIconElement.setAttribute('data-lucide', 'sun');
+                    localStorage.setItem('theme', 'light');
+                }
+                lucide.createIcons({
+                    attrs: {
+                        'stroke-width': 2
+                    }
+                });
+            }
+            
+            setTheme(currentTheme);
+            
+            themeToggle.addEventListener('click', function() {
+                currentTheme = localStorage.getItem('theme') || 'light';
+                setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+            });
+            
+            // ========== 发送者筛选 ==========
+            var filterBtn = document.getElementById('filterBtn');
+            var filterDropdown = document.getElementById('filterDropdown');
+            var filterOptionsList = document.getElementById('filterOptionsList');
+            var filterSearchInput = document.getElementById('filterSearchInput');
+            var filterNoResult = document.getElementById('filterNoResult');
+            var currentFilter = 'all';
+            var currentFilterUid = null;
+            
+            // 使用 Map 按 UID 整合发送者（同一用户可能有不同群名片）
+            // key: uid, value: { names: Set<string>, displayName: string }
+            var sendersByUid = new Map();
+            var senderNameToUid = new Map(); // 用于反向查找
+            
+            // 收集所有发送者，按 UID 整合
+            // 使用 messageBlocks 而不是 messages，因为 filterMessages 使用的是 originalMessages（从 messageBlocks 克隆）
+            messageBlocks.forEach(function(block) {
+                var messageEl = block.querySelector('.message');
+                var sender = block.querySelector('.sender');
+                var uid = messageEl ? (messageEl.getAttribute('data-sender-uid') || messageEl.getAttribute('data-uid')) : null;
+                if (sender) {
+                    var senderName = sender.textContent;
+                    if (uid) {
+                        // 有 UID，按 UID 整合
+                        if (!sendersByUid.has(uid)) {
+                            sendersByUid.set(uid, { names: new Set(), displayName: senderName });
+                        }
+                        sendersByUid.get(uid).names.add(senderName);
+                        senderNameToUid.set(senderName, uid);
+                    } else {
+                        // 无 UID，按名称作为唯一标识
+                        if (!sendersByUid.has(senderName)) {
+                            sendersByUid.set(senderName, { names: new Set([senderName]), displayName: senderName });
+                        }
+                        senderNameToUid.set(senderName, senderName);
+                    }
+                }
+            });
+            
+            // 生成筛选选项
+            sendersByUid.forEach(function(info, uid) {
+                var option = document.createElement('div');
+                option.className = 'filter-option';
+                option.setAttribute('data-value', uid);
+                // 如果同一用户有多个名片，显示所有名片
+                var names = Array.from(info.names);
+                if (names.length > 1) {
+                    option.textContent = names[0] + ' (' + (names.length - 1) + '个别名)';
+                    option.setAttribute('title', names.join(', '));
+                } else {
+                    option.textContent = info.displayName;
+                }
+                // 存储所有名称用于搜索
+                option.setAttribute('data-names', names.join('|').toLowerCase());
+                filterOptionsList.appendChild(option);
+            });
+            
+            // 筛选搜索功能
+            filterSearchInput.addEventListener('input', function(e) {
+                var keyword = e.target.value.toLowerCase().trim();
+                var options = filterOptionsList.querySelectorAll('.filter-option');
+                var hasVisible = false;
+                
+                options.forEach(function(opt) {
+                    var value = opt.getAttribute('data-value');
+                    var names = opt.getAttribute('data-names') || opt.textContent.toLowerCase();
+                    
+                    if (value === 'all' || names.includes(keyword) || opt.textContent.toLowerCase().includes(keyword)) {
+                        opt.classList.remove('hidden');
+                        hasVisible = true;
+                    } else {
+                        opt.classList.add('hidden');
+                    }
+                });
+                
+                // 显示/隐藏无结果提示
+                if (hasVisible) {
+                    filterNoResult.classList.remove('visible');
+                } else {
+                    filterNoResult.classList.add('visible');
+                }
+            });
+            
+            // 切换下拉菜单
+            filterBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                filterDropdown.classList.toggle('active');
+                if (filterDropdown.classList.contains('active')) {
+                    // 打开时聚焦搜索框
+                    setTimeout(function() {
+                        filterSearchInput.focus();
+                    }, 100);
+                }
+            });
+            
+            // 选择选项
+            filterOptionsList.addEventListener('click', function(e) {
+                if (e.target.classList.contains('filter-option')) {
+                    // 移除所有active
+                    filterOptionsList.querySelectorAll('.filter-option').forEach(function(opt) {
+                        opt.classList.remove('active');
+                    });
+                    // 添加当前active
+                    e.target.classList.add('active');
+                    var selectedValue = e.target.getAttribute('data-value');
+                    if (selectedValue === 'all') {
+                        currentFilter = 'all';
+                        currentFilterUid = null;
+                    } else {
+                        currentFilter = selectedValue;
+                        currentFilterUid = selectedValue;
+                    }
+                    filterDropdown.classList.remove('active');
+                    // 清空搜索
+                    filterSearchInput.value = '';
+                    filterOptionsList.querySelectorAll('.filter-option').forEach(function(opt) {
+                        opt.classList.remove('hidden');
+                    });
+                    filterNoResult.classList.remove('visible');
+                    filterMessages();
+                }
+            });
+            
+            // 点击外部关闭
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.filter-container')) {
+                    filterDropdown.classList.remove('active');
+                }
+            });
+            
+            // ========== 搜索框展开/收起 ==========
+            var searchBtn = document.getElementById('searchBtn');
+            var searchWrapper = document.getElementById('searchWrapper');
+            var searchInput = document.getElementById('searchInput');
+            var searchActive = false;
+            
+            searchBtn.addEventListener('click', function() {
+                searchActive = !searchActive;
+                if (searchActive) {
+                    searchWrapper.classList.add('active');
+                    searchInput.focus();
+                } else {
+                    searchWrapper.classList.remove('active');
+                    searchInput.value = '';
+                    filterMessages();
+                }
+            });
+            
+            // 点击外部关闭搜索框
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.search-container') && searchActive) {
+                    searchActive = false;
+                    searchWrapper.classList.remove('active');
+                    if (!searchInput.value) {
+                        searchInput.value = '';
+                        filterMessages();
+                    }
+                }
+            });
+            
+            // ========== 防抖函数 ==========
+            function debounce(func, wait) {
+                let timeout;
+                return function(...args) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), wait);
+                };
+            }
+            
+            // ========== 搜索功能 + 高亮 ==========
+            var clearSearch = document.getElementById('clearSearch');
+            var originalContents = new Map();
+            var originalMessages = messageBlocks.map(block => block.cloneNode(true));
+            
+            // 保存原始内容
+            originalMessages.forEach(function(msg) {
+                var content = msg.querySelector('.content');
+                if (content) {
+                    originalContents.set(msg, content.innerHTML);
+                }
+            });
+            
+            function escapeRegExp(string) {
+                return string.replace(/[.*+?^$\{\}()|\[\]\\]/g, '\\$&');
+            }
+            
+            function highlightText(text, searchTerm) {
+                if (!searchTerm) return text;
+                var escapedTerm = escapeRegExp(searchTerm);
+                var regex = new RegExp('(' + escapedTerm + ')', 'gi');
+                return text.replace(regex, '<mark class="highlight">$1</mark>');
+            }
+            
+            function filterMessages() {
+                var searchTerm = searchInput.value.trim();
+                var selectedSender = currentFilter;
+                var selectedUid = currentFilterUid;
+                var startDate = startDateInput ? startDateInput.value : '';
+                var endDate = endDateInput ? endDateInput.value : '';
+                var filteredMessages = [];
+                var visibleCount = 0;
+                
+                // 使用DocumentFragment优化DOM操作
+                originalMessages.forEach(function(msg) {
+                    // msg 是 .message-block，需要找到内部的 .message 元素
+                    var messageEl = msg.querySelector('.message');
+                    var sender = msg.querySelector('.sender');
+                    var senderName = sender ? sender.textContent : '';
+                    // 从 .message 元素获取 data-sender-uid
+                    var msgUid = messageEl ? (messageEl.getAttribute('data-sender-uid') || messageEl.getAttribute('data-uid')) : null;
+                    var content = msg.querySelector('.content');
+                    var originalContent = originalContents.get(msg);
+                    
+                    if (!content || !originalContent) return;
+                    
+                    // 克隆消息用于过滤
+                    var msgClone = msg.cloneNode(true);
+                    var contentClone = msgClone.querySelector('.content');
+                    
+                    // 恢复原始内容
+                    contentClone.innerHTML = originalContent;
+                    
+                    var contentText = contentClone.textContent.toLowerCase();
+                    var searchLower = searchTerm.toLowerCase();
+                    
+                    // 获取消息日期进行时间范围筛选
+                    var messageDate = msgClone.getAttribute('data-date');
+                    var matchTimeRange = true;
+                    if (startDate || endDate) {
+                        if (messageDate) {
+                            if (startDate && messageDate < startDate) {
+                                matchTimeRange = false;
+                            }
+                            if (endDate && messageDate > endDate) {
+                                matchTimeRange = false;
+                            }
+                        }
+                    }
+                    
+                    var matchSearch = searchTerm === '' || contentText.includes(searchLower) || senderName.toLowerCase().includes(searchLower);
+                    
+                    // 发送者筛选：优先使用 UID 匹配，支持同一用户不同群名片
+                    var matchSender = false;
+                    if (selectedSender === 'all') {
+                        matchSender = true;
+                    } else if (selectedUid && msgUid) {
+                        // 基于 UID 匹配（整合同一用户不同群名片）
+                        matchSender = msgUid === selectedUid;
+                    } else {
+                        // 回退到名称匹配（兼容无 UID 的情况）
+                        matchSender = senderName === selectedSender;
+                    }
+                    
+                    if (matchSearch && matchSender && matchTimeRange) {
+                        visibleCount++;
+                        
+                        // 高亮匹配文本
+                        if (searchTerm && contentText.includes(searchLower)) {
+                            var textContent = contentClone.querySelector('.text-content');
+                            if (textContent) {
+                                var originalText = textContent.textContent;
+                                textContent.innerHTML = highlightText(originalText, searchTerm);
+                            }
+                        }
+                        
+                        filteredMessages.push(msgClone);
+                    }
+                });
+                
+                // 更新虚拟滚动器
+                if (virtualScroller) {
+                    virtualScroller.updateItems(filteredMessages);
+                    // 延迟滚动到顶部，确保虚拟滚动器已更新
+                    setTimeout(function() {
+                        window.scrollTo({ top: 0, behavior: 'auto' });
+                    }, 50);
+                } else {
+                    // 非虚拟滚动模式：直接更新DOM
+                    var chatContent = document.querySelector('.chat-content');
+                    var fragment = document.createDocumentFragment();
+                    filteredMessages.forEach(msg => fragment.appendChild(msg));
+                    chatContent.innerHTML = '';
+                    chatContent.appendChild(fragment);
+                }
+                
+                // 显示/隐藏清除按钮
+                clearSearch.style.display = searchTerm ? 'block' : 'none';
+                
+                // 更新统计
+                document.getElementById('info-total').textContent = visibleCount + ' / ' + total;
+                
+                // 更新图标
+                lucide.createIcons({
+                    attrs: {
+                        'stroke-width': 2
+                    }
+                });
+            }
+            
+            // 使用防抖优化搜索
+            var debouncedFilter = debounce(filterMessages, 300);
+            searchInput.addEventListener('input', debouncedFilter);
+            
+            clearSearch.addEventListener('click', function() {
+                searchInput.value = '';
+                filterMessages();
+                searchInput.focus();
+            });
+            
+            // 页面加载完成后应用已保存的过滤条件（包括时间范围）
+            setTimeout(function() {
+                filterMessages();
+            }, 100);
+        });
+
+    </script>
+</head>
+<body>
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <div class="toolbar-content">
+            <div class="search-container">
+                <button class="search-btn" id="searchBtn">
+                    <i data-lucide="search"></i>
+                </button>
+                <div class="search-input-wrapper" id="searchWrapper">
+                    <input type="text" id="searchInput" class="search-input" placeholder="搜索消息...">
+                    <button class="clear-search" id="clearSearch" style="display: none;">
+                        <i data-lucide="x"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="toolbar-separator"></div>
+            <div class="toolbar-actions">
+                <div class="filter-container">
+                    <button class="filter-btn" id="filterBtn">
+                        <i data-lucide="user"></i>
+                    </button>
+                    <div class="filter-dropdown" id="filterDropdown">
+                        <div class="filter-search-wrapper">
+                            <input type="text" class="filter-search-input" id="filterSearchInput" placeholder="搜索成员...">
+                        </div>
+                        <div class="filter-options-list" id="filterOptionsList">
+                            <div class="filter-option active" data-value="all">全部成员</div>
+                        </div>
+                        <div class="filter-no-result" id="filterNoResult">未找到匹配的成员</div>
+                    </div>
+                </div>
+                <div class="toolbar-separator"></div>
+                <div class="time-range-container">
+                    <button class="time-range-btn" id="timeRangeBtn">
+                        <i data-lucide="calendar"></i>
+                        <span id="timeRangeLabel">全部时间</span>
+                    </button>
+                    <div class="time-range-dropdown" id="timeRangeDropdown">
+                        <div class="time-range-inputs">
+                            <div class="time-range-input-group">
+                                <label for="startDate">开始日期</label>
+                                <input type="date" id="startDate" class="time-range-input">
+                            </div>
+                            <div class="time-range-input-group">
+                                <label for="endDate">结束日期</label>
+                                <input type="date" id="endDate" class="time-range-input">
+                            </div>
+                        </div>
+                        <div class="time-range-actions">
+                            <button class="apply-btn" id="applyTimeRange">应用</button>
+                            <button class="clear-btn" id="clearTimeRange">清除</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="toolbar-separator"></div>
+                <a href="https://github.com/shuakami/qq-chat-exporter" target="_blank" class="github-btn" title="GitHub">
+                    <i data-lucide="github"></i>
+                </a>
+                <div class="toolbar-separator"></div>
+                <button class="theme-toggle" id="themeToggle" title="切换主题">
+                    <i data-lucide="sun" id="themeIcon"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="chat-layout">
+        <div class="chat-main">
+            <!-- Hero Section -->
+<div class="hero">
+        <h1 class="hero-title">客代课</h1>
+        <p class="hero-subtitle">聊天记录</p>
+        <div class="hero-meta">
+            <div class="meta-item">
+                <span class="meta-label">导出时间</span>
+                <span class="meta-value">2026/04/15 13:47:13</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">消息总数</span>
+                <span class="meta-value" id="info-total">--</span>
+        </div>
+            <div class="meta-item">
+                <span class="meta-label">时间范围</span>
+                <span class="meta-value" id="info-range">--</span>
+                </div>
+            </div>
+        </div>
+            <!-- Chat Messages -->
+            <div class="chat-content">
+            </div>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3>QQ Chat Exporter Pro</h3>
+            </div>
+            <div class="footer-info">
+                <p class="footer-copyright">Made with ❤️ by <strong>shuakami</strong></p>
+                <p class="footer-links">
+                    <a href="https://github.com/shuakami/qq-chat-exporter" target="_blank">GitHub</a>
+                    <span class="separator">·</span>
+                    <span>GPL-3.0 License</span>
+                </p>
+                <p class="footer-notice">本软件完全免费开源 · 如果有帮助到您，欢迎给个 Star 喵，谢谢喵</p>
+            </div>
+        </div>
+    </footer>
+        </div>
+    </div>
+
+    <!-- Image Modal -->
+    <div class="image-modal" id="imageModal">
+        <img src="" alt="" id="modalImage">
+</div>
+
+<!-- 统计占位回填 -->
+<script>
+(function(){
+  try {
+    var totalEl = document.getElementById('info-total');
+    if (totalEl) totalEl.textContent = 0;
+    var rangeEl = document.getElementById('info-range');
+    if (rangeEl) rangeEl.textContent = "--";
+  } catch (e) { /* noop */ }
+})();
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="zh"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Epilogue:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-on-surface": "#303030",
+                    "on-secondary-fixed": "#1a1c1c",
+                    "primary-fixed-dim": "#82d3de",
+                    "error-container": "#93000a",
+                    "secondary-container": "#454747",
+                    "secondary-fixed-dim": "#c6c6c7",
+                    "primary": "#82d3de",
+                    "tertiary-fixed-dim": "#e9c400",
+                    "on-surface": "#e2e2e2",
+                    "surface-bright": "#393939",
+                    "primary-fixed": "#9ff0fb",
+                    "on-background": "#e2e2e2",
+                    "on-primary-container": "#9becf7",
+                    "on-error-container": "#ffdad6",
+                    "surface-tint": "#82d3de",
+                    "surface-container-high": "#2a2a2a",
+                    "on-error": "#690005",
+                    "on-tertiary-fixed": "#221b00",
+                    "outline": "#889394",
+                    "on-secondary": "#2f3131",
+                    "on-surface-variant": "#bec8ca",
+                    "secondary-fixed": "#e2e2e2",
+                    "tertiary": "#eac400",
+                    "surface-dim": "#131313",
+                    "surface-container-highest": "#353535",
+                    "on-tertiary-container": "#4c3f00",
+                    "on-tertiary-fixed-variant": "#554600",
+                    "on-tertiary": "#3b2f00",
+                    "inverse-surface": "#e2e2e2",
+                    "background": "#131313",
+                    "tertiary-fixed": "#ffe171",
+                    "on-primary": "#00363c",
+                    "outline-variant": "#3e494a",
+                    "on-primary-fixed": "#001f23",
+                    "surface-container-low": "#1b1b1b",
+                    "error": "#ffb4ab",
+                    "on-secondary-fixed-variant": "#454747",
+                    "surface-container": "#1f1f1f",
+                    "surface-variant": "#353535",
+                    "tertiary-container": "#caa900",
+                    "surface": "#131313",
+                    "inverse-primary": "#006972",
+                    "surface-container-lowest": "#0e0e0e",
+                    "on-secondary-container": "#b4b5b5",
+                    "secondary": "#c6c6c7",
+                    "primary-container": "#006d77",
+                    "on-primary-fixed-variant": "#004f56"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0px",
+                    "lg": "0px",
+                    "xl": "0px",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Space Grotesk"],
+                    "body": ["Epilogue"],
+                    "label": ["Space Grotesk"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .perspective-container {
+        perspective: 1000px;
+      }
+      .perspective-item {
+        transform: rotateY(-15deg) skewX(-12deg);
+        transform-origin: left center;
+        transition: transform 0.3s ease;
+      }
+      .perspective-item:hover {
+        transform: rotateY(-5deg) skewX(-12deg);
+      }
+      .skew-canvas { transform: skewX(-6deg); }
+      .anti-skew { transform: skewX(6deg); }
+      .clip-shard { clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%); }
+      .clip-edge { clip-path: polygon(0 0, 100% 0, 100% 85%, 85% 100%, 0 100%); }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-tertiary selection:text-black overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="bg-black text-yellow-400 font-['Space_Grotesk'] font-bold -skew-x-6 uppercase tracking-tighter docked full-width top-0 border-b-4 border-teal-700 shadow-[4px_4px_0px_0px_rgba(0,109,119,1)] flex justify-between items-center px-6 py-4 w-full z-50">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-yellow-400 text-2xl" data-icon="menu">menu</span>
+<h1 class="text-3xl font-black text-yellow-400 -rotate-3 italic tracking-tighter">LEDGER.SHOCK</h1>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-yellow-400 text-2xl hover:skew-x-2 transition-transform active:translate-y-1" data-icon="search">search</span>
+</div>
+</header>
+<main class="pt-24 pb-32 px-4 max-w-4xl mx-auto space-y-12">
+<!-- Month Selector -->
+<section class="relative group">
+<div class="bg-primary-container p-1 -skew-x-6 flex items-center justify-between border-4 border-black">
+<button class="p-4 hover:bg-tertiary hover:text-black transition-colors anti-skew">
+<span class="material-symbols-outlined align-middle" data-icon="chevron_left">chevron_left</span>
+</button>
+<div class="text-center anti-skew">
+<p class="font-headline font-bold text-2xl tracking-widest text-white uppercase">2023年 10月</p>
+<p class="text-[0.6rem] font-label text-tertiary tracking-[0.3em] uppercase">财务效率指数</p>
+</div>
+<button class="p-4 hover:bg-tertiary hover:text-black transition-colors anti-skew">
+<span class="material-symbols-outlined align-middle" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+<div class="absolute -bottom-2 -right-2 w-full h-full bg-black -z-10 -skew-x-6"></div>
+</section>
+<!-- Dynamic Tabs -->
+<nav class="flex gap-2 overflow-x-auto pb-4">
+<button class="bg-tertiary text-black px-8 py-4 -skew-x-12 font-headline font-black text-lg uppercase transition-all flex-shrink-0">
+<span class="inline-block skew-x-12">支出分布</span>
+</button>
+<button class="bg-primary-container text-white/70 px-8 py-4 -skew-x-12 font-headline font-black text-lg uppercase transition-all hover:text-white flex-shrink-0">
+<span class="inline-block skew-x-12">月度对比</span>
+</button>
+<button class="bg-primary-container text-white/70 px-8 py-4 -skew-x-12 font-headline font-black text-lg uppercase transition-all hover:text-white flex-shrink-0">
+<span class="inline-block skew-x-12">排行</span>
+</button>
+</nav>
+<!-- Tab 1: 支出分布 Content -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+<!-- Pie Chart Section (Geometric) -->
+<div class="relative aspect-square flex items-center justify-center -rotate-3">
+<!-- Abstract Pie Represented as Polygon Rings -->
+<svg class="w-full h-full" viewbox="0 0 100 100">
+<!-- Segment 1 (Yellow) -->
+<path d="M 50 50 L 50 0 A 50 50 0 0 1 100 50 Z" fill="#FFD60A" stroke="#000000" stroke-width="2"></path>
+<!-- Segment 2 (Teal) -->
+<path d="M 50 50 L 100 50 A 50 50 0 0 1 50 100 Z" fill="#006D77" stroke="#000000" stroke-width="2"></path>
+<!-- Segment 3 (White) -->
+<path d="M 50 50 L 50 100 A 50 50 0 0 1 0 50 Z" fill="#FFFFFF" stroke="#000000" stroke-width="2"></path>
+<!-- Segment 4 (Black/Void) -->
+<path d="M 50 50 L 0 50 A 50 50 0 0 1 50 0 Z" fill="#131313" stroke="#006D77" stroke-width="1"></path>
+<!-- Center Hole -->
+<circle cx="50" cy="50" fill="#000000" r="15"></circle>
+</svg>
+<div class="absolute text-center bg-black p-2 border-2 border-tertiary">
+<p class="font-headline font-bold text-tertiary text-xs">总计</p>
+<p class="font-headline font-black text-white text-xl">¥12,840</p>
+</div>
+</div>
+<!-- Category List -->
+<div class="space-y-4 perspective-container px-2">
+<!-- Item 1 -->
+<div class="perspective-item bg-primary-container border-4 border-black border-l-8 border-l-tertiary px-6 py-4 flex justify-between items-center group hover:bg-white transition-all cursor-pointer shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+<div class="skew-x-12 flex items-center gap-4 anti-skew">
+<span class="material-symbols-outlined text-tertiary group-hover:text-primary-container" data-icon="restaurant" style="font-variation-settings: 'FILL' 1;">restaurant</span>
+<span class="font-headline font-bold text-white group-hover:text-black">餐饮美食</span>
+</div>
+<div class="skew-x-12 text-right anti-skew">
+<p class="font-headline font-black text-white group-hover:text-black">¥4,200</p>
+<p class="text-[0.65rem] font-label text-tertiary group-hover:text-primary-container">占总计 32.7%</p>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="perspective-item bg-primary-container border-4 border-black border-l-8 border-l-white px-6 py-4 flex justify-between items-center group hover:bg-tertiary transition-all cursor-pointer shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+<div class="skew-x-12 flex items-center gap-4 anti-skew">
+<span class="material-symbols-outlined text-white group-hover:text-black" data-icon="commute" style="font-variation-settings: 'FILL' 1;">commute</span>
+<span class="font-headline font-bold text-white group-hover:text-black">交通出行</span>
+</div>
+<div class="skew-x-12 text-right anti-skew">
+<p class="font-headline font-black text-white group-hover:text-black">¥2,150</p>
+<p class="text-[0.65rem] font-label text-white/50 group-hover:text-black/70">占总计 16.8%</p>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="perspective-item bg-primary-container border-4 border-black border-l-8 border-l-primary px-6 py-4 flex justify-between items-center group hover:bg-white transition-all cursor-pointer shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+<div class="skew-x-12 flex items-center gap-4 anti-skew">
+<span class="material-symbols-outlined text-primary group-hover:text-primary-container" data-icon="shopping_bag" style="font-variation-settings: 'FILL' 1;">shopping_bag</span>
+<span class="font-headline font-bold text-white group-hover:text-black">零售购物</span>
+</div>
+<div class="skew-x-12 text-right anti-skew">
+<p class="font-headline font-black text-white group-hover:text-black">¥5,890</p>
+<p class="text-[0.65rem] font-label text-primary group-hover:text-primary-container">占总计 45.9%</p>
+</div>
+</div>
+<!-- Item 4 -->
+<div class="perspective-item bg-primary-container border-4 border-black border-l-8 border-l-tertiary-fixed-variant px-6 py-4 flex justify-between items-center group hover:bg-tertiary transition-all cursor-pointer shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+<div class="skew-x-12 flex items-center gap-4 anti-skew">
+<span class="material-symbols-outlined text-white/50 group-hover:text-black" data-icon="more_horiz">more_horiz</span>
+<span class="font-headline font-bold text-white/50 group-hover:text-black">其他</span>
+</div>
+<div class="skew-x-12 text-right anti-skew">
+<p class="font-headline font-black text-white/50 group-hover:text-black">¥600</p>
+<p class="text-[0.65rem] font-label text-white/30 group-hover:text-black/50">占总计 4.6%</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Tab 2: Visualization Preview (Stacked Bar) -->
+<section class="space-y-6">
+<h2 class="inline-block bg-white text-black font-headline font-black px-6 py-2 -skew-x-6 text-xl uppercase italic">月度对比</h2>
+<div class="bg-black border-4 border-primary-container p-8 -skew-x-3 relative overflow-hidden h-64 flex items-end justify-between gap-4">
+<!-- Bar Chart Elements -->
+<div class="w-full flex flex-col items-center justify-end h-full gap-2 group">
+<div class="w-full bg-tertiary border-2 border-black" style="height: 40%;"></div>
+<div class="w-full bg-white border-2 border-black" style="height: 30%;"></div>
+<span class="font-label text-[10px] text-primary anti-skew">5月</span>
+</div>
+<div class="w-full flex flex-col items-center justify-end h-full gap-2 group">
+<div class="w-full bg-tertiary border-2 border-black" style="height: 55%;"></div>
+<div class="w-full bg-white border-2 border-black" style="height: 45%;"></div>
+<span class="font-label text-[10px] text-primary anti-skew">6月</span>
+</div>
+<div class="w-full flex flex-col items-center justify-end h-full gap-2 group">
+<div class="w-full bg-tertiary border-2 border-black" style="height: 70%;"></div>
+<div class="w-full bg-white border-2 border-black" style="height: 65%;"></div>
+<span class="font-label text-[10px] text-primary anti-skew">7月</span>
+</div>
+<div class="w-full flex flex-col items-center justify-end h-full gap-2 group">
+<div class="w-full bg-tertiary border-2 border-black" style="height: 35%;"></div>
+<div class="w-full bg-white border-2 border-black" style="height: 40%;"></div>
+<span class="font-label text-[10px] text-primary anti-skew">8月</span>
+</div>
+<div class="w-full flex flex-col items-center justify-end h-full gap-2 group">
+<div class="w-full bg-tertiary border-2 border-black" style="height: 85%;"></div>
+<div class="w-full bg-white border-2 border-black" style="height: 70%;"></div>
+<span class="font-label text-[10px] text-primary anti-skew">9月</span>
+</div>
+<div class="w-full flex flex-col items-center justify-end h-full gap-2 group">
+<div class="w-full bg-tertiary border-2 border-black" style="height: 60%;"></div>
+<div class="w-full bg-white border-2 border-black" style="height: 35%;"></div>
+<span class="font-label text-[10px] text-primary anti-skew">10月</span>
+</div>
+<!-- Grid Lines -->
+<div class="absolute inset-0 pointer-events-none border-b-2 border-white/10 flex flex-col justify-between">
+<div class="border-b border-white/5 w-full"></div>
+<div class="border-b border-white/5 w-full"></div>
+<div class="border-b border-white/5 w-full"></div>
+</div>
+</div>
+<div class="flex gap-6 font-label text-xs uppercase tracking-tighter">
+<div class="flex items-center gap-2"><div class="w-3 h-3 bg-tertiary"></div> 收入</div>
+<div class="flex items-center gap-2"><div class="w-3 h-3 bg-white"></div> 支出</div>
+</div>
+</section>
+<!-- Tab 3: Ranking Preview -->
+<section class="space-y-6">
+<h2 class="inline-block bg-primary-container text-white font-headline font-black px-6 py-2 -skew-x-6 text-xl uppercase italic">最高支出项</h2>
+<div class="space-y-6 perspective-container px-2">
+<!-- Rank 1 -->
+<div class="perspective-item bg-tertiary text-black p-4 flex justify-between items-center border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,109,119,1)]">
+<div class="flex items-center gap-4 anti-skew">
+<span class="text-3xl font-black italic">01</span>
+<div>
+<p class="font-headline font-black text-xl leading-tight">办公室租赁</p>
+<p class="text-xs uppercase font-label">运营负担</p>
+</div>
+</div>
+<div class="anti-skew text-right">
+<p class="font-headline font-black text-2xl">¥18,000</p>
+</div>
+</div>
+<!-- Rank 2 -->
+<div class="perspective-item bg-white text-black p-4 flex justify-between items-center border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,109,119,1)]">
+<div class="flex items-center gap-4 anti-skew">
+<span class="text-2xl font-black italic">02</span>
+<div>
+<p class="font-headline font-black text-lg leading-tight">云服务器费用</p>
+<p class="text-xs uppercase font-label">技术开支</p>
+</div>
+</div>
+<div class="anti-skew text-right">
+<p class="font-headline font-black text-xl">¥12,400</p>
+</div>
+</div>
+<!-- Rank 3 -->
+<div class="perspective-item bg-primary-container text-white p-4 flex justify-between items-center border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,109,119,1)]">
+<div class="flex items-center gap-4 anti-skew">
+<span class="text-xl font-black italic">03</span>
+<div>
+<p class="font-headline font-black text-lg leading-tight">订阅服务</p>
+<p class="text-xs uppercase font-label opacity-70">定期支出</p>
+</div>
+</div>
+<div class="anti-skew text-right">
+<p class="font-headline font-black text-xl">¥3,500</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- FAB -->
+<button class="fixed bottom-24 right-6 w-16 h-16 bg-tertiary text-black -skew-x-12 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,109,119,1)] flex items-center justify-center hover:scale-110 active:translate-y-1 transition-transform z-50">
+<span class="material-symbols-outlined text-4xl skew-x-12" data-icon="add" style="font-variation-settings: 'wght' 700;">add</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-stretch overflow-hidden bg-black text-yellow-400 font-['Space_Grotesk'] font-bold uppercase text-xs border-t-4 border-teal-700 h-20 z-50">
+<a class="flex flex-col items-center justify-center text-white/50 h-full w-full hover:text-white transition-colors active:scale-95" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="menu_book">menu_book</span>
+<span>账本</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-yellow-400 text-black -skew-x-12 px-6 py-1 h-full w-full active:scale-95" href="#">
+<div class="skew-x-12 flex flex-col items-center">
+<span class="material-symbols-outlined mb-1" data-icon="query_stats">query_stats</span>
+<span>统计</span>
+</div>
+</a>
+<a class="flex flex-col items-center justify-center text-white/50 h-full w-full hover:text-white transition-colors active:scale-95" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="settings">settings</span>
+<span>设置</span>
+</a>
+</nav>
+</body></html>

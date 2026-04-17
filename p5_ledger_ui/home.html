@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Account Book - 首页</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=Space+Grotesk:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --primary:#85cfff;
+  --primary-deep:#4da8d6;
+  --secondary:#feda57;
+  --secondary-deep:#c4a820;
+  --bg:#0e0e0e;
+  --surface:#1a1a1a;
+  --surface-hi:#262626;
+  --surface-lo:#131313;
+  --text:#ffffff;
+  --text-dim:#adaaaa;
+  --error:#ff716c;
+  --income:#4ade80;
+  --expense:#ff716c;
+  --snap:150ms steps(2);
+  --snap-slow:200ms steps(3);
+}
+body{
+  font-family:'Noto Sans SC','Space Grotesk',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+  padding-bottom:100px;
+}
+body::before{
+  content:'';position:fixed;top:0;left:0;width:100%;height:100%;
+  background:repeating-linear-gradient(-45deg,transparent,transparent 80px,rgba(133,207,255,0.03) 80px,rgba(133,207,255,0.03) 81px);
+  pointer-events:none;z-index:0;
+}
+.num{font-family:'JetBrains Mono','Space Grotesk',monospace;font-weight:700}
+
+.topbar{
+  position:sticky;top:0;z-index:50;
+  background:linear-gradient(90deg,#000 0%,var(--surface-lo) 100%);
+  border-bottom:4px solid var(--primary);
+  padding:12px 20px;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.topbar::after{content:'';position:absolute;bottom:-8px;left:0;width:100%;height:4px;background:var(--secondary)}
+.logo{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.4rem;color:var(--primary);text-transform:uppercase;letter-spacing:.02em;transform:skewX(-4deg)}
+
+.month-bar{display:flex;align-items:center;justify-content:center;gap:16px;padding:20px 16px;position:relative;z-index:1}
+.month-btn{width:40px;height:40px;background:var(--surface);border:3px solid var(--primary);color:var(--primary);font-size:1.2rem;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--snap)}
+.month-btn:hover{background:var(--primary);color:#000}
+.month-btn:active{transform:scale(.9) skew(-2deg,0);filter:brightness(.8)}
+.month-label{font-family:'Space Grotesk',sans-serif;font-size:1.4rem;font-weight:800;color:var(--text);transform:skewX(-4deg);letter-spacing:-0.02em}
+
+.summary-card{margin:0 16px 24px;position:relative;z-index:1}
+.summary-inner{background:linear-gradient(135deg,var(--surface) 0%,var(--surface-lo) 100%);border:4px solid var(--primary);padding:24px;position:relative;clip-path:polygon(0 0,100% 0,100% 92%,96% 100%,0 100%)}
+.summary-inner::before{content:'';position:absolute;top:0;right:0;width:60px;height:60px;background:var(--secondary);clip-path:polygon(0 0,100% 0,100% 100%)}
+.balance-label{font-size:.75rem;font-weight:700;color:var(--secondary);text-transform:uppercase;letter-spacing:.15em;margin-bottom:4px}
+.balance-amount{font-family:'JetBrains Mono','Space Grotesk',monospace;font-size:3rem;font-weight:700;color:var(--text);transform:skewX(-4deg);letter-spacing:-0.03em;line-height:1.1}
+.balance-amount .decimal{color:var(--primary)}
+.summary-row{display:flex;gap:12px;margin-top:20px}
+.summary-item{flex:1;padding:12px 16px;position:relative;transition:all var(--snap)}
+.summary-item.income{background:rgba(74,222,128,0.1);border-left:4px solid var(--income);clip-path:polygon(0 0,100% 0,96% 100%,0 100%)}
+.summary-item.expense{background:rgba(255,113,108,0.1);border-left:4px solid var(--expense);clip-path:polygon(0 0,100% 0,96% 100%,0 100%)}
+.summary-item-label{font-size:.7rem;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:.1em}
+.summary-item-amount{font-family:'JetBrains Mono','Space Grotesk',monospace;font-size:1.2rem;font-weight:700;margin-top:2px}
+.summary-item.income .summary-item-amount{color:var(--income)}
+.summary-item.expense .summary-item-amount{color:var(--expense)}
+
+.slash-divider{height:4px;margin:0 16px 20px;background:linear-gradient(90deg,var(--primary) 0%,var(--secondary) 50%,var(--primary) 100%);clip-path:polygon(0 20%,100% 0,100% 80%,0 100%)}
+
+.section-header{display:flex;align-items:center;gap:12px;padding:0 16px;margin-bottom:16px}
+.section-title{font-family:'Space Grotesk',sans-serif;font-size:1.3rem;font-weight:800;text-transform:uppercase;color:var(--secondary);transform:skewX(-4deg);white-space:nowrap}
+.section-line{flex:1;height:3px;background:repeating-linear-gradient(-90deg,var(--primary),var(--primary) 6px,transparent 6px,transparent 12px)}
+
+.record-list{padding:0 12px;display:flex;flex-direction:column;gap:8px}
+.record-card{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--surface);border-left:5px solid var(--expense);position:relative;cursor:pointer;transition:all var(--snap)}
+.record-card:active{transform:scale(.98) skew(-1deg,0);filter:brightness(.9)}
+.record-card.income-card{border-left-color:var(--income)}
+.record-card::after{content:'';position:absolute;right:0;top:0;width:20px;height:100%;background:repeating-linear-gradient(-45deg,transparent,transparent 3px,rgba(133,207,255,0.06) 3px,rgba(133,207,255,0.06) 6px)}
+.record-icon{width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1rem;clip-path:polygon(15% 0,100% 0,85% 100%,0 100%);flex-shrink:0;transition:all var(--snap)}
+.record-card.income-card .record-icon{background:rgba(74,222,128,0.15);color:var(--income)}
+.record-card:not(.income-card) .record-icon{background:rgba(255,113,108,0.15);color:var(--expense)}
+.record-info{flex:1;min-width:0}
+.record-category{font-weight:700;font-size:.95rem;color:var(--text)}
+.record-note{font-size:.75rem;color:var(--text-dim);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.record-right{text-align:right;flex-shrink:0}
+.record-amount{font-family:'JetBrains Mono','Space Grotesk',monospace;font-weight:700;font-size:1.1rem}
+.record-card.income-card .record-amount{color:var(--income)}
+.record-card:not(.income-card) .record-amount{color:var(--expense)}
+.record-date{font-size:.7rem;color:var(--text-dim);margin-top:2px}
+
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:50;background:#000;border-top:4px solid var(--primary);display:flex;justify-content:space-around;align-items:center;height:72px;padding:0 8px}
+.bottom-nav::before{content:'';position:absolute;top:-6px;left:0;width:100%;height:4px;background:var(--secondary)}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 12px;cursor:pointer;transition:all var(--snap);color:var(--text-dim);position:relative}
+.nav-item:hover{color:var(--primary)}
+.nav-item:active{transform:scale(.9) skew(-1deg,0)}
+.nav-item.active{color:var(--secondary)}
+.nav-icon{width:24px;height:24px;display:flex;align-items:center;justify-content:center}
+.nav-icon svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.nav-item.active .nav-icon svg{stroke-width:3}
+.nav-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
+
+.fab{position:fixed;bottom:88px;right:20px;z-index:40;width:56px;height:56px;background:var(--secondary);border:3px solid #000;display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:900;color:#000;cursor:pointer;clip-path:polygon(15% 0,100% 0,85% 100%,0 100%);transition:all var(--snap);box-shadow:4px 4px 0 0 var(--primary)}
+.fab:hover{transform:scale(1.05)}
+.fab:active{transform:scale(.95) skew(-2deg,0);box-shadow:none}
+
+.budget-section{margin:0 16px 24px;padding:20px;background:var(--surface);border:4px solid var(--secondary);position:relative;clip-path:polygon(0 0,100% 0,100% 94%,97% 100%,0 100%)}
+.budget-label{font-size:.75rem;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px}
+.budget-bar-bg{height:28px;background:var(--surface-hi);border:2px solid var(--text-dim);position:relative;clip-path:polygon(0 0,100% 0,98% 100%,0 100%)}
+.budget-bar-fill{height:100%;background:repeating-linear-gradient(-45deg,var(--secondary),var(--secondary) 4px,rgba(254,218,87,0.7) 4px,rgba(254,218,87,0.7) 8px);position:relative;transition:width var(--snap-slow)}
+.budget-bar-fill::after{content:'';position:absolute;right:0;top:0;width:8px;height:100%;background:var(--primary);clip-path:polygon(0 0,100% 30%,100% 70%,0 100%)}
+.budget-text{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-family:'JetBrains Mono','Space Grotesk',monospace;font-weight:700;font-size:.8rem;color:#000}
+.budget-footer{display:flex;justify-content:space-between;margin-top:8px;font-size:.7rem;font-weight:600;color:var(--text-dim)}
+
+.corner-deco{position:fixed;top:80px;right:-20px;z-index:0;width:120px;height:120px;background:var(--primary);opacity:.06;transform:rotate(15deg);clip-path:polygon(0 0,100% 0,100% 80%,20% 100%);pointer-events:none;animation:corner-drift 8s steps(4) infinite}
+
+@keyframes p5-shake{
+  0%,100%{transform:skewX(-4deg) rotate(0deg)}
+  25%{transform:skewX(-4deg) rotate(.3deg)}
+  50%{transform:skewX(-4deg) rotate(-.2deg)}
+  75%{transform:skewX(-4deg) rotate(.15deg)}
+}
+@keyframes p5-wobble{
+  0%,100%{transform:rotate(0deg)}
+  20%{transform:rotate(.5deg)}
+  40%{transform:rotate(-.4deg)}
+  60%{transform:rotate(.3deg)}
+  80%{transform:rotate(-.2deg)}
+}
+@keyframes p5-breathe{
+  0%,100%{opacity:1}
+  50%{opacity:.85}
+}
+@keyframes p5-pulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.03)}
+}
+@keyframes corner-drift{
+  0%,100%{transform:rotate(15deg) translate(0,0)}
+  25%{transform:rotate(17deg) translate(3px,-2px)}
+  50%{transform:rotate(13deg) translate(-2px,3px)}
+  75%{transform:rotate(16deg) translate(2px,1px)}
+}
+@keyframes fab-idle{
+  0%,100%{transform:rotate(0deg) scale(1)}
+  15%{transform:rotate(2deg) scale(1.02)}
+  30%{transform:rotate(-1.5deg) scale(1)}
+  45%{transform:rotate(1deg) scale(1.01)}
+  60%{transform:rotate(-.5deg) scale(1)}
+  75%{transform:rotate(.8deg) scale(1.02)}
+  90%{transform:rotate(-.3deg) scale(1)}
+}
+@keyframes nav-active-glow{
+  0%,100%{text-shadow:0 0 4px currentColor}
+  50%{text-shadow:0 0 10px currentColor,0 0 20px currentColor}
+}
+@keyframes divider-shimmer{
+  0%{background-position:0% 50%}
+  100%{background-position:200% 50%}
+}
+@keyframes icon-wiggle{
+  0%,100%{transform:rotate(0deg)}
+  25%{transform:rotate(3deg)}
+  75%{transform:rotate(-3deg)}
+}
+
+.logo{animation:p5-shake 3s steps(3) infinite}
+.balance-amount{animation:p5-shake 4s steps(4) infinite}
+.summary-inner{animation:p5-wobble 5s steps(5) infinite}
+.budget-section{animation:p5-wobble 6s steps(4) infinite}
+.fab{animation:fab-idle 2.5s steps(5) infinite}
+.nav-item.active .nav-icon{animation:nav-active-glow 2s steps(3) infinite}
+.slash-divider{background-size:200% 100%;animation:divider-shimmer 3s steps(6) infinite}
+.record-icon{animation:icon-wiggle 3.5s steps(4) infinite}
+.record-card:nth-child(odd){animation:p5-wobble 7s steps(6) infinite}
+.record-card:nth-child(even){animation:p5-wobble 8s steps(5) infinite .5s}
+.corner-deco{animation:corner-drift 8s steps(4) infinite}
+.month-label{animation:p5-breathe 4s steps(3) infinite}
+</style>
+</head>
+<body>
+<div class="corner-deco"></div>
+<header class="topbar">
+  <div style="display:flex;align-items:center;gap:12px">
+    <div style="width:32px;height:32px;background:var(--secondary);clip-path:polygon(15% 0,100% 0,85% 100%,0 100%);display:flex;align-items:center;justify-content:center;font-weight:900;color:#000;font-size:.9rem">A</div>
+    <span class="logo">Account Book</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:6px">
+    <div style="width:8px;height:8px;background:var(--income);clip-path:polygon(50% 0,100% 100%,0 100%)"></div>
+    <div style="width:8px;height:8px;background:var(--secondary);clip-path:polygon(50% 0,100% 100%,0 100%)"></div>
+    <div style="width:8px;height:8px;background:var(--expense);clip-path:polygon(50% 0,100% 100%,0 100%)"></div>
+  </div>
+</header>
+<div class="month-bar">
+  <button class="month-btn" style="clip-path:polygon(20% 0,100% 0,80% 100%,0 100%)">&#9664;</button>
+  <span class="month-label">2026年4月</span>
+  <button class="month-btn" style="clip-path:polygon(0 0,80% 0,100% 100%,20% 100%)">&#9654;</button>
+</div>
+<div class="summary-card">
+  <div class="summary-inner">
+    <div class="balance-label">// 本月结余</div>
+    <div class="balance-amount">&#165;12,580<span class="decimal">.50</span></div>
+    <div class="summary-row">
+      <div class="summary-item income">
+        <div class="summary-item-label">收入</div>
+        <div class="summary-item-amount">+&#165;18,200.00</div>
+      </div>
+      <div class="summary-item expense">
+        <div class="summary-item-label">支出</div>
+        <div class="summary-item-amount">-&#165;5,619.50</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="budget-section">
+  <div class="budget-label">// 预算消耗</div>
+  <div class="budget-bar-bg">
+    <div class="budget-bar-fill" style="width:56%">
+      <span class="budget-text">56%</span>
+    </div>
+  </div>
+  <div class="budget-footer">
+    <span>&#165;0</span>
+    <span style="color:var(--secondary)">&#165;10,000.00 预算上限</span>
+  </div>
+</div>
+<div class="slash-divider"></div>
+<div class="section-header">
+  <span class="section-title">// 近期记录</span>
+  <div class="section-line"></div>
+</div>
+<div class="record-list">
+  <div class="record-card">
+    <div class="record-icon">餐</div>
+    <div class="record-info">
+      <div class="record-category">餐饮</div>
+      <div class="record-note">午餐 - 沙县小吃</div>
+    </div>
+    <div class="record-right">
+      <div class="record-amount">-&#165;35.00</div>
+      <div class="record-date">04-15 12:30</div>
+    </div>
+  </div>
+  <div class="record-card income-card">
+    <div class="record-icon">薪</div>
+    <div class="record-info">
+      <div class="record-category">工资</div>
+      <div class="record-note">4月工资到账</div>
+    </div>
+    <div class="record-right">
+      <div class="record-amount">+&#165;18,200.00</div>
+      <div class="record-date">04-10 09:00</div>
+    </div>
+  </div>
+  <div class="record-card">
+    <div class="record-icon">交</div>
+    <div class="record-info">
+      <div class="record-category">交通</div>
+      <div class="record-note">地铁充值</div>
+    </div>
+    <div class="record-right">
+      <div class="record-amount">-&#165;200.00</div>
+      <div class="record-date">04-08 08:15</div>
+    </div>
+  </div>
+  <div class="record-card">
+    <div class="record-icon">购</div>
+    <div class="record-info">
+      <div class="record-category">购物</div>
+      <div class="record-note">数据线 + 手机壳</div>
+    </div>
+    <div class="record-right">
+      <div class="record-amount">-&#165;89.50</div>
+      <div class="record-date">04-07 20:45</div>
+    </div>
+  </div>
+  <div class="record-card">
+    <div class="record-icon">娱</div>
+    <div class="record-info">
+      <div class="record-category">娱乐</div>
+      <div class="record-note">电影票 x2</div>
+    </div>
+    <div class="record-right">
+      <div class="record-amount">-&#165;78.00</div>
+      <div class="record-date">04-06 19:00</div>
+    </div>
+  </div>
+  <div class="record-card">
+    <div class="record-icon">住</div>
+    <div class="record-info">
+      <div class="record-category">住房</div>
+      <div class="record-note">4月房租</div>
+    </div>
+    <div class="record-right">
+      <div class="record-amount">-&#165;2,500.00</div>
+      <div class="record-date">04-01 00:00</div>
+    </div>
+  </div>
+</div>
+<button class="fab">+</button>
+<nav class="bottom-nav">
+  <div class="nav-item active">
+    <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 12L12 3l9 9"/><path d="M5 10v9a1 1 0 001 1h4v-5h4v5h4a1 1 0 001-1v-9"/></svg></span>
+    <span class="nav-label">总览</span>
+  </div>
+  <div class="nav-item">
+    <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 10h16M4 14h10M4 18h7"/></svg></span>
+    <span class="nav-label">明细</span>
+  </div>
+  <div class="nav-item">
+    <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M6 20V10M12 20V4M18 20v-6"/></svg></span>
+    <span class="nav-label">统计</span>
+  </div>
+  <div class="nav-item">
+    <span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span>
+    <span class="nav-label">设置</span>
+  </div>
+</nav>
+<script>
+const AC=new(window.AudioContext||window.webkitAudioContext)();
+function snd(type){
+  if(AC.state==='suspended')AC.resume();
+  const t=AC.currentTime;
+  const g=AC.createGain();
+  g.connect(AC.destination);
+  if(type==='click'){
+    const o=AC.createOscillator();o.type='square';o.frequency.setValueAtTime(800,t);o.frequency.exponentialRampToValueAtTime(200,t+.06);
+    g.gain.setValueAtTime(.15,t);g.gain.exponentialRampToValueAtTime(.001,t+.06);
+    o.connect(g);o.start(t);o.stop(t+.06);
+  }else if(type==='nav'){
+    const o1=AC.createOscillator();o1.type='square';o1.frequency.setValueAtTime(1800,t);
+    const o2=AC.createOscillator();o2.type='sine';o2.frequency.setValueAtTime(900,t+.015);
+    const g2=AC.createGain();g2.connect(AC.destination);g2.gain.setValueAtTime(.06,t+.015);g2.gain.exponentialRampToValueAtTime(.001,t+.07);
+    o2.connect(g2);
+    g.gain.setValueAtTime(.12,t);g.gain.exponentialRampToValueAtTime(.001,t+.015);
+    o1.connect(g);o1.start(t);o1.stop(t+.015);o2.start(t+.015);o2.stop(t+.07);
+  }else if(type==='fab'){
+    const o1=AC.createOscillator();o1.type='square';o1.frequency.setValueAtTime(400,t);
+    const o2=AC.createOscillator();o2.type='square';o2.frequency.setValueAtTime(600,t+.04);
+    const o3=AC.createOscillator();o3.type='square';o3.frequency.setValueAtTime(900,t+.08);
+    g.gain.setValueAtTime(.12,t);g.gain.exponentialRampToValueAtTime(.001,t+.14);
+    o1.connect(g);o2.connect(g);o3.connect(g);o1.start(t);o1.stop(t+.04);o2.start(t+.04);o2.stop(t+.08);o3.start(t+.08);o3.stop(t+.14);
+  }else if(type==='card'){
+    const o=AC.createOscillator();o.type='triangle';o.frequency.setValueAtTime(500,t);o.frequency.exponentialRampToValueAtTime(300,t+.05);
+    g.gain.setValueAtTime(.08,t);g.gain.exponentialRampToValueAtTime(.001,t+.05);
+    o.connect(g);o.start(t);o.stop(t+.05);
+  }else if(type==='month'){
+    const o=AC.createOscillator();o.type='sawtooth';o.frequency.setValueAtTime(300,t);o.frequency.exponentialRampToValueAtTime(900,t+.06);o.frequency.exponentialRampToValueAtTime(500,t+.12);
+    g.gain.setValueAtTime(.08,t);g.gain.exponentialRampToValueAtTime(.001,t+.12);
+    o.connect(g);o.start(t);o.stop(t+.12);
+  }else if(type==='budget'){
+    const o=AC.createOscillator();o.type='sine';o.frequency.setValueAtTime(1000,t);o.frequency.exponentialRampToValueAtTime(1500,t+.03);o.frequency.exponentialRampToValueAtTime(800,t+.06);
+    g.gain.setValueAtTime(.1,t);g.gain.exponentialRampToValueAtTime(.001,t+.06);
+    o.connect(g);o.start(t);o.stop(t+.06);
+  }
+}
+document.querySelectorAll('.nav-item').forEach(el=>el.addEventListener('pointerdown',()=>snd('nav')));
+document.querySelectorAll('.month-btn').forEach(el=>el.addEventListener('pointerdown',()=>snd('month')));
+document.querySelectorAll('.record-card').forEach(el=>el.addEventListener('pointerdown',()=>snd('card')));
+document.querySelector('.fab')?.addEventListener('pointerdown',()=>snd('fab'));
+document.querySelector('.budget-section')?.addEventListener('pointerdown',()=>snd('budget'));
+</script>
+</body>

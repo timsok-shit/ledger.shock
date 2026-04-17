@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="zh-CN"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800;900&amp;family=Epilogue:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#fdd400",
+                        "background": "#000000",
+                        "surface": "#1a1a1a",
+                        "on-surface": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0px",
+                        "lg": "0px",
+                        "xl": "0px",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Space Grotesk", "sans-serif"],
+                        "body": ["Epilogue", "sans-serif"],
+                        "label": ["Space Grotesk", "sans-serif"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        
+        /* Irregular Quadrilateral Polygons */
+        .poly-1 { clip-path: polygon(2% 5%, 98% 0%, 100% 92%, 4% 100%); }
+        .poly-2 { clip-path: polygon(0% 2%, 96% 6%, 98% 98%, 2% 94%); }
+        .poly-3 { clip-path: polygon(3% 0%, 100% 4%, 97% 100%, 1% 96%); }
+        .poly-4 { clip-path: polygon(1% 3%, 99% 1%, 96% 97%, 3% 99%); }
+
+        /* Complex Border Logic for Clip-paths 
+           Using a pseudo-element or a background-color container to simulate 12px borders 
+           that follow the clip-path. The "border" is the outer shape, the "content" is the inner shape.
+        */
+        .irregular-border-black {
+            position: relative;
+            background: black;
+            padding: 12px; /* This defines the border thickness */
+        }
+        
+        .irregular-border-white {
+            position: relative;
+            background: white;
+            padding: 12px;
+        }
+
+        .inner-content {
+            height: 100%;
+            width: 100%;
+        }
+
+        /* Ensuring text remains readable and centered */
+        .center-gravity {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary selection:text-black">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 w-full z-50 bg-black border-b-[12px] border-primary flex items-center justify-between px-6 py-4">
+<div class="flex items-center gap-4">
+<button class="bg-white p-2 border-4 border-black active:translate-y-1 transition-all rotate-[-3deg]">
+<span class="material-symbols-outlined text-black font-bold">arrow_back</span>
+</button>
+<h1 class="text-2xl font-black text-primary skew-x-[-4deg] font-headline uppercase tracking-tighter">交易流水</h1>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary scale-125">account_balance_wallet</span>
+</div>
+</header>
+<main class="pt-28 pb-32 px-4 space-y-10 overflow-x-hidden">
+<!-- Quick Record Section -->
+<section class="relative">
+<div class="irregular-border-white poly-1">
+<div class="inner-content bg-primary p-8 poly-1">
+<h2 class="font-headline font-black text-4xl text-black uppercase tracking-tighter leading-none italic">记账</h2>
+</div>
+</div>
+<div class="absolute -top-3 -right-2 bg-white border-4 border-black px-3 py-1 rotate-[8deg] z-20">
+<span class="font-headline font-bold text-xs text-black uppercase tracking-widest">实时同步</span>
+</div>
+</section>
+<!-- Input Area -->
+<section class="space-y-6">
+<div class="irregular-border-black poly-2">
+<div class="inner-content bg-white p-8 poly-2">
+<label class="block font-headline font-black text-black text-sm uppercase mb-3 tracking-widest">账目详情</label>
+<div class="space-y-4">
+<input class="w-full bg-transparent border-b-4 border-black focus:outline-none focus:border-primary font-headline font-bold text-xl placeholder:text-black/40 text-black p-0 py-2 uppercase" placeholder="输入金额和备注..." type="text"/>
+<div class="flex gap-2">
+<button class="bg-black text-white px-4 py-1 border-2 border-black text-xs font-bold font-headline uppercase hover:bg-primary hover:text-black transition-colors">餐饮</button>
+<button class="bg-black text-white px-4 py-1 border-2 border-black text-xs font-bold font-headline uppercase hover:bg-primary hover:text-black transition-colors">交通</button>
+<button class="bg-black text-white px-4 py-1 border-2 border-black text-xs font-bold font-headline uppercase hover:bg-primary hover:text-black transition-colors">其他</button>
+</div>
+</div>
+</div>
+</div>
+<button class="w-full group">
+<div class="irregular-border-white poly-3 group-active:scale-95 transition-all">
+<div class="inner-content bg-primary py-6 poly-3 flex justify-center items-center">
+<span class="font-headline font-black text-2xl text-black uppercase tracking-tighter">确认提交</span>
+</div>
+</div>
+</button>
+</section>
+<!-- Recent Records Section -->
+<section class="space-y-6">
+<div class="flex items-end justify-between px-2">
+<h3 class="font-headline font-black text-2xl text-white uppercase italic tracking-tighter underline decoration-primary decoration-8 underline-offset-8">最近记录</h3>
+<span class="font-headline font-bold text-primary text-xs uppercase opacity-80">查看全部</span>
+</div>
+<div class="space-y-4">
+<!-- Record Item 1 -->
+<div class="irregular-border-white poly-4 hover:scale-[1.02] transition-transform">
+<div class="inner-content bg-primary p-6 poly-4 flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-headline font-black text-xl text-black uppercase leading-none">午餐 - 拉面</span>
+<span class="font-body font-bold text-[12px] text-black/70 uppercase mt-2 tracking-widest">2024-10-24</span>
+</div>
+<div class="bg-black p-3 -rotate-6">
+<span class="font-headline font-black text-white text-lg leading-none">-$18.50</span>
+</div>
+</div>
+</div>
+<!-- Record Item 2 -->
+<div class="irregular-border-white poly-1 hover:scale-[1.02] transition-transform">
+<div class="inner-content bg-primary p-6 poly-1 flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-headline font-black text-xl text-black uppercase leading-none">优步打车</span>
+<span class="font-body font-bold text-[12px] text-black/70 uppercase mt-2 tracking-widest">2024-10-23</span>
+</div>
+<div class="bg-black p-3 rotate-6">
+<span class="font-headline font-black text-white text-lg leading-none">-$24.00</span>
+</div>
+</div>
+</div>
+<!-- Record Item 3 -->
+<div class="irregular-border-white poly-2 hover:scale-[1.02] transition-transform">
+<div class="inner-content bg-primary p-6 poly-2 flex items-center justify-between">
+<div class="flex flex-col">
+<span class="font-headline font-black text-xl text-black uppercase leading-none">电影票</span>
+<span class="font-body font-bold text-[12px] text-black/70 uppercase mt-2 tracking-widest">2024-10-23</span>
+</div>
+<div class="bg-black p-3 -rotate-3">
+<span class="font-headline font-black text-white text-lg leading-none">-$15.00</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Stats Card -->
+<section class="py-6">
+<div class="irregular-border-white poly-3">
+<div class="inner-content bg-surface h-56 p-8 flex flex-col justify-between poly-3">
+<div class="z-10 flex justify-between items-start">
+<span class="bg-primary text-black px-2 py-1 font-headline font-black text-xs uppercase">月度预算上限</span>
+<span class="text-white font-headline font-black text-2xl tracking-tighter italic">$2,400.00</span>
+</div>
+<div class="z-10 space-y-3">
+<div class="h-8 w-full bg-black border-4 border-white p-1">
+<div class="h-full bg-primary w-[65%]"></div>
+</div>
+<p class="font-headline font-black text-sm text-primary uppercase tracking-widest italic">已消耗 65% 的预算</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar -->
+<nav class="fixed bottom-0 w-full z-50 border-t-[12px] border-primary bg-black flex justify-around items-center px-4 pb-8 pt-4">
+<a class="flex flex-col items-center justify-center text-white p-2 hover:bg-primary hover:text-black transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined mb-1">account_balance_wallet</span>
+<span class="font-['Space_Grotesk'] font-black text-[10px] uppercase">钱包</span>
+</a>
+<a class="flex flex-col items-center justify-center text-white p-2 hover:bg-primary hover:text-black transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined mb-1">leaderboard</span>
+<span class="font-['Space_Grotesk'] font-black text-[10px] uppercase">统计</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-primary text-black -rotate-3 p-3 min-w-[80px] border-[4px] border-black hover:scale-110 transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined mb-1">qr_code_scanner</span>
+<span class="font-['Space_Grotesk'] font-black text-[10px] uppercase">扫码</span>
+</a>
+<a class="flex flex-col items-center justify-center text-white p-2 hover:bg-primary hover:text-black transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined mb-1">credit_card</span>
+<span class="font-['Space_Grotesk'] font-black text-[10px] uppercase">卡片</span>
+</a>
+</nav>
+</body></html>
