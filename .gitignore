@@ -19,6 +19,7 @@ out/
 .gradle/
 build/
 app/build/
+build/
 
 # Local configuration file (sdk path, etc)
 local.properties
@@ -76,13 +77,16 @@ build-*.txt
 # VS Code
 .vscode/
 
-# Gradle distribution
+# Gradle distribution (not needed, will be downloaded by wrapper)
 gradle-*/
+gradle-*.zip
 
-# HTML preview files
+# HTML preview and design files
 p5_ledger_ui/
 preview_*.html
 stitch_*.html
+stitch_*.png
+stitch_*.json
 ui-components.html
 
 # SDK licenses
@@ -90,3 +94,7 @@ sdk/
 
 # AGP versions
 agp-versions.xml
+
+# Large binary files
+node-v*-x64.msi
+nvm-setup.exe
