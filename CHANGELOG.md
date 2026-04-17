@@ -1,23 +1,21 @@
-# 更新日志
+# Changelog
 
-## 版本 1.1.10
+## Version 1.1.10
 
-### ✨ 新功能
-- 全新的 P5R 风格界面,视觉体验全面升级
-- 新增设置页面,支持数据导出为 CSV 文件
-- 新增类别管理,可以自定义收支分类
-- 新增统计页面,收支情况一目了然
+### ✨ New Features
+- Redesigned settings page with CSV data export
+- Custom category management for income and expense
+- New statistics page to track your finances at a glance
 
-### 🎨 体验优化
-- 优化动画效果,操作更流畅
-- 优化账单记录卡片,支持滑动删除和编辑
-- 优化金额显示,增加数字动画效果
-- 新增音效反馈
+### 🎨 Improvements
+- Smoother animations for better user experience
+- Swipe gestures on transaction cards for quick delete and edit
+- Animated number display for amounts
 
-### 🐛 问题修复
-- 修复已知问题,提升应用稳定性
+### 🐛 Bug Fixes
+- Fixed known issues and improved app stability
 
 ---
 
-**温馨提示:** 
-如有任何问题或建议,欢迎反馈给我们!
+**Note:** 
+Feel free to share any feedback or suggestions with us!
